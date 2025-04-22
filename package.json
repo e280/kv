@@ -1,0 +1,46 @@
+{
+	"name": "@e280/kv",
+	"version": "0.0.0-0",
+	"description": "key-value json database",
+	"license": "MIT",
+	"author": "Chase Moskal <chasemoskal@gmail.com>",
+	"type": "module",
+	"main": "x/index.js",
+	"files": [
+		"x",
+		"s"
+	],
+	"scripts": {
+		"build": "run-s _clean _tsc _links",
+		"_clean": "rm -rf x && mkdir x",
+		"_links": "ln -s \"$(realpath node_modules)\" x/node_modules",
+		"_tsc": "tsc",
+		"start": "exit 0",
+		"count": "find s -path '*/_archive' -prune -o -name '*.ts' -exec wc -l {} +",
+		"test": "cynic node x/kv.test.js"
+	},
+	"dependencies": {
+		"level": "^10.0.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.14.1",
+		"cynic": "^0.2.1",
+		"npm-run-all": "^4.1.5",
+		"typescript": "^5.8.3"
+	},
+	"keywords": [
+		"kv",
+		"key-value",
+		"json",
+		"json-database",
+		"orm"
+	],
+	"homepage": "https://github.com/e280/kv#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/e280/kv.git"
+	},
+	"bugs": {
+		"url": "https://github.com/e280/kv/issues"
+	}
+}

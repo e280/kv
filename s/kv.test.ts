@@ -45,7 +45,6 @@ export default <Suite>{
 			await sub.put("1", true)
 			await sub.put("2", true)
 			const keys = await collect(sub.keys())
-			console.log(keys)
 			expect(keys.length).equals(2)
 			expect(keys.includes("1")).ok()
 			expect(keys.includes("2")).ok()

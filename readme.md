@@ -1,5 +1,5 @@
 
-# 🪇 `@e280/kv` — Key-value Json Database
+# 🪇 Kv — Key-value Json Database
 
 I just wanted a damn simple typescript database.
 
@@ -35,7 +35,7 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   ```
 - or alternatively, pop in a `StorageCore` to use browser localStorage
   ```ts
-  import {Kv, Storage} from "@e280/kv"
+  import {Kv, StorageCore} from "@e280/kv"
 
   const kv = new Kv(new StorageCore())
   ```
@@ -227,6 +227,7 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
 
 ## Cores
 - if you want Kv to operate on a new database, it's pretty easy to write a new Core
+- here is the abstract Core class you'd have to extend
   ```ts
   export abstract class Core {
     abstract gets(...keys: string[]): Promise<(string | undefined)[]>
@@ -239,11 +240,8 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   - `transaction` only has to support two kinds of Write objects, `put` and `del`
 - then you can just provide your new core to the Kv constructor, eg
   ```ts
-  // make your own core
-  const core = new MyCore()
-
-  // provide it to Kv and there you go
-  const kv = new Kv(core)
+  // instance your new core and give it to Kv
+  const kv = new Kv(new MyCore())
   ```
 - see [mem.ts](./cores/mem.ts), which implements the MemCore
 - see [level.ts](./cores/level.ts) which implements the LevelCore

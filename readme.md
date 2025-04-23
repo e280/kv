@@ -243,8 +243,9 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   // instance your new core and give it to Kv
   const kv = new Kv(new MyCore())
   ```
-- see [mem.ts](./cores/mem.ts), which implements the MemCore
-- see [level.ts](./cores/level.ts) which implements the LevelCore
+- see [cores/mem.ts](./s/cores/mem.ts)
+- see [cores/level.ts](./s/cores/level.ts)
+- see [cores/storage.ts](./s/cores/storage.ts)
 - you can do it!
 
 <br/>

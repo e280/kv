@@ -5,80 +5,85 @@ import {Kv} from "./kv.js"
 import {collect} from "./parts/collect.js"
 
 await Science.run({
-	"access string": test(async() => {
-		const kv = new Kv()
-		await kv.put("hello", "world")
-		expect(await kv.get("hello")).is("world")
-	}),
 
-	"access number": test(async() => {
-		const kv = new Kv()
-		await kv.put("hello", 123)
-		expect(await kv.get("hello")).is(123)
-	}),
+	"access": suite({
+		"string": test(async() => {
+			const kv = new Kv()
+			await kv.put("hello", "world")
+			expect(await kv.get("hello")).is("world")
+		}),
 
-	"key iterations": suite({
-		"basic iteration": test(async() => {
+		"number": test(async() => {
 			const kv = new Kv()
-			await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
-			const keys = await collect(kv.keys())
-			expect(keys.length).is(4)
-		}),
-		"start/end": test(async() => {
-			const kv = new Kv()
-			await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
-			const keys = await collect(kv.keys({start: "record:2", end: "record:3"}))
-			expect(keys.length).is(2)
-			expect(keys[0]).is("record:2")
-		}),
-		"limit": test(async() => {
-			const kv = new Kv()
-			await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
-			const keys = await collect(kv.keys({limit: 2}))
-			expect(keys.length).is(2)
-			expect(keys[0]).is("record:1")
-		}),
-		"iterate on namespace": test(async() => {
-			const kv = new Kv()
-			await kv.put("bad", true)
-			const sub = kv.namespace("good")
-			await sub.put("1", true)
-			await sub.put("2", true)
-			const keys = await collect(sub.keys())
-			expect(keys.length).is(2)
-			expect(keys.includes("1")).ok()
-			expect(keys.includes("2")).ok()
-			expect(keys.includes("bad")).not.ok()
+			await kv.put("hello", 123)
+			expect(await kv.get("hello")).is(123)
 		}),
 	}),
 
-	"entry iterations": suite({
-		"basic iteration": test(async() => {
-			const kv = new Kv()
-			await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
-			const entries = await collect(kv.entries())
-			expect(entries.length).is(4)
+	"iterate": suite({
+		"keys": suite({
+			"basic": test(async() => {
+				const kv = new Kv()
+				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				const keys = await collect(kv.keys())
+				expect(keys.length).is(4)
+			}),
+			"start/end": test(async() => {
+				const kv = new Kv()
+				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				const keys = await collect(kv.keys({start: "record:2", end: "record:3"}))
+				expect(keys.length).is(2)
+				expect(keys[0]).is("record:2")
+			}),
+			"limit": test(async() => {
+				const kv = new Kv()
+				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				const keys = await collect(kv.keys({limit: 2}))
+				expect(keys.length).is(2)
+				expect(keys[0]).is("record:1")
+			}),
+			"on namespace": test(async() => {
+				const kv = new Kv()
+				await kv.put("bad", true)
+				const sub = kv.namespace("good")
+				await sub.put("1", true)
+				await sub.put("2", true)
+				const keys = await collect(sub.keys())
+				expect(keys.length).is(2)
+				expect(keys.includes("1")).ok()
+				expect(keys.includes("2")).ok()
+				expect(keys.includes("bad")).not.ok()
+			}),
 		}),
-		"start/end": test(async() => {
-			const kv = new Kv()
-			await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
-			const entries = await collect(kv.entries({start: "record:2", end: "record:3"}))
-			expect(entries.length).is(2)
-			expect(entries[0][0]).is("record:2")
-			expect(entries[0][1]).is(2)
-		}),
-		"limit": test(async() => {
-			const kv = new Kv()
-			await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
-			const entries = await collect(kv.entries({limit: 2}))
-			expect(entries.length).is(2)
-			expect(entries[0][0]).is("record:1")
-			expect(entries[0][1]).is(1)
+
+		"entries": suite({
+			"basic": test(async() => {
+				const kv = new Kv()
+				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				const entries = await collect(kv.entries())
+				expect(entries.length).is(4)
+			}),
+			"start/end": test(async() => {
+				const kv = new Kv()
+				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				const entries = await collect(kv.entries({start: "record:2", end: "record:3"}))
+				expect(entries.length).is(2)
+				expect(entries[0][0]).is("record:2")
+				expect(entries[0][1]).is(2)
+			}),
+			"limit": test(async() => {
+				const kv = new Kv()
+				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				const entries = await collect(kv.entries({limit: 2}))
+				expect(entries.length).is(2)
+				expect(entries[0][0]).is("record:1")
+				expect(entries[0][1]).is(1)
+			}),
 		}),
 	}),
 
-	"namespaces": suite({
-		"namespace": test(async() => {
+	"namespace": suite({
+		"access": test(async() => {
 			const kv = new Kv()
 			const sub = kv.namespace("a.b")
 			await sub.put("hello", 123)
@@ -86,7 +91,7 @@ await Science.run({
 			expect(await kv.get("a.b:hello")).is(123)
 		}),
 
-		"sub namespace": test(async() => {
+		"sub access": test(async() => {
 			const kv = new Kv()
 			const subsub = kv.namespace("a.b").namespace("c")
 			await subsub.put("hello", 123)
@@ -94,7 +99,7 @@ await Science.run({
 			expect(await kv.get("a.b.c:hello")).is(123)
 		}),
 
-		"sub namespace key iteration": test(async() => {
+		"sub iterate keys": test(async() => {
 			const kv = new Kv()
 			const subsub = kv.namespace("a.b").namespace("c")
 			await subsub.put("123", true)
@@ -103,27 +108,28 @@ await Science.run({
 		}),
 	}),
 
-	"write transaction": test(async() => {
-		const kv = new Kv()
-		await kv.put("hello", "world")
-		await kv.transaction(tn => [
-			tn.put("alpha", "bravo"),
-			tn.del("hello"),
-		])
-		expect(await kv.get("hello")).is(undefined)
-		expect(await kv.get("alpha")).is("bravo")
-	}),
-
-	"multi-tier transaction": test(async() => {
-		const kv = new Kv()
-		const subsub = kv.namespace("a.b").namespace("c")
-		await kv.transaction(tn => [
-			tn.put("alpha", "bravo"),
-			subsub.write.put("charlie", "delta"),
-		])
-		expect(await kv.get("alpha")).is("bravo")
-		expect(await subsub.get("charlie")).is("delta")
-		expect(await kv.get("a.b.c:charlie")).is("delta")
+	"transaction": suite({
+		"write": test(async() => {
+			const kv = new Kv()
+			await kv.put("hello", "world")
+			await kv.transaction(tn => [
+				tn.put("alpha", "bravo"),
+				tn.del("hello"),
+			])
+			expect(await kv.get("hello")).is(undefined)
+			expect(await kv.get("alpha")).is("bravo")
+		}),
+		"multi-tier": test(async() => {
+			const kv = new Kv()
+			const subsub = kv.namespace("a.b").namespace("c")
+			await kv.transaction(tn => [
+				tn.put("alpha", "bravo"),
+				subsub.write.put("charlie", "delta"),
+			])
+			expect(await kv.get("alpha")).is("bravo")
+			expect(await subsub.get("charlie")).is("delta")
+			expect(await kv.get("a.b.c:charlie")).is("delta")
+		}),
 	}),
 })
 

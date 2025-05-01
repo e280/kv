@@ -5,7 +5,6 @@ import {Kv} from "./kv.js"
 import {collect} from "./parts/collect.js"
 
 await Science.run({
-
 	"access": suite({
 		"string": test(async() => {
 			const kv = new Kv()
@@ -78,6 +77,19 @@ await Science.run({
 				expect(entries.length).is(2)
 				expect(entries[0][0]).is("record:1")
 				expect(entries[0][1]).is(1)
+			}),
+		}),
+
+		"values": suite({
+			"basic": test(async() => {
+				const kv = new Kv()
+				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				const values = await collect(kv.values())
+				expect(values.length).is(4)
+				expect(values[0]).is(1)
+				expect(values[1]).is(2)
+				expect(values[2]).is(3)
+				expect(values[3]).is(4)
 			}),
 		}),
 	}),

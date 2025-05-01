@@ -78,6 +78,11 @@ export class Kv<V = any> {
 			yield [this.#prefixer.unprefix(key), Data.parse<V>(value)] as [string, X]
 	}
 
+	async *values<X extends V = V>(scan?: Scan) {
+		for await (const [,value] of this.entries(scan))
+			yield value as X
+	}
+
 	async transaction(fn: (write: Writer<V>) => Write[][]) {
 		const writes = fn(this.write).flat()
 		return this.core.transaction(...writes)

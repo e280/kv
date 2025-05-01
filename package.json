@@ -1,7 +1,7 @@
 {
 	"name": "@e280/kv",
 	"version": "0.0.0-2",
-	"description": "key-value json database",
+	"description": "Simple abstract key-value json database",
 	"license": "MIT",
 	"author": "Chase Moskal <chasemoskal@gmail.com>",
 	"type": "module",
@@ -15,7 +15,7 @@
 		"count": "find s -path '*/_archive' -prune -o -name '*.ts' -exec wc -l {} +",
 		"test": "node x/kv.test.js --verbose",
 		"test-debug": "node inspect x/kv.test.js",
-		"watch": "run-p _tscw _testw",
+		"start": "run-p _tscw _testw",
 		"_clean": "rm -rf x && mkdir x",
 		"_links": "ln -s \"$(realpath node_modules)\" x/node_modules",
 		"_tsc": "tsc",

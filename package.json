@@ -13,14 +13,14 @@
 	"scripts": {
 		"build": "run-s _clean _tsc _links",
 		"count": "find s -path '*/_archive' -prune -o -name '*.ts' -exec wc -l {} +",
-		"test": "node x/kv.test.js --verbose",
+		"test": "node x/kv.test.js",
 		"test-debug": "node inspect x/kv.test.js",
 		"start": "run-p _tscw _testw",
 		"_clean": "rm -rf x && mkdir x",
 		"_links": "ln -s \"$(realpath node_modules)\" x/node_modules",
 		"_tsc": "tsc",
 		"_tscw": "tsc -w",
-		"_testw": "node --watch x/kv.test.js --verbose"
+		"_testw": "node --watch x/kv.test.js"
 	},
 	"dependencies": {
 		"level": "^10.0.0"

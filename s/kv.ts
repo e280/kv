@@ -5,10 +5,13 @@ import {MemCore} from "./cores/mem.js"
 import {Store} from "./parts/store.js"
 import {Writer} from "./parts/writer.js"
 import {chunks} from "./parts/chunks.js"
+import {collect} from "./parts/collect.js"
 import {Prefixer} from "./parts/prefixer.js"
 import {Maker, Options, Scan, Write} from "./parts/types.js"
 
 export class Kv<V = any> {
+	static collect = collect
+
 	write: Writer<V>
 	#options: Options
 	#prefixer: Prefixer

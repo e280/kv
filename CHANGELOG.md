@@ -10,6 +10,7 @@
 
 ### v0.0.0-3
 - 🍏 add `kv.values()` iterator
+- 🍏 add `Kv.collect(iterator)` helper
 
 ### v0.0.0-0
 - 🍏 first release

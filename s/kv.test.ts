@@ -118,6 +118,18 @@ await Science.run({
 			const [key] = await collect(subsub.keys())
 			expect(key).is("123")
 		}),
+
+		"localized clear": test(async() => {
+			const kv = new Kv()
+			const alpha = kv.namespace("alpha")
+			const bravo = kv.namespace("bravo")
+			await alpha.put("hello1", 1)
+			await bravo.put("hello2", 2)
+			expect((await Kv.collect(kv.keys())).length).is(2)
+			await bravo.clear()
+			expect((await Kv.collect(kv.keys())).length).is(1)
+			expect((await Kv.collect(alpha.keys()))[0]).is("hello1")
+		}),
 	}),
 
 	"transaction": suite({

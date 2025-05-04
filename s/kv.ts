@@ -1,11 +1,11 @@
 
-import {Core} from "./parts/core.js"
 import {Data} from "./parts/data.js"
-import {MemCore} from "./cores/mem.js"
 import {Store} from "./parts/store.js"
+import {Driver} from "./parts/driver.js"
 import {Writer} from "./parts/writer.js"
 import {chunks} from "./parts/chunks.js"
 import {collect} from "./parts/collect.js"
+import {MemDriver} from "./drivers/mem.js"
 import {Prefixer} from "./parts/prefixer.js"
 import {Maker, Options, Scan, Write} from "./parts/types.js"
 
@@ -16,7 +16,7 @@ export class Kv<V = any> {
 	#options: Options
 	#prefixer: Prefixer
 
-	constructor(public core: Core = new MemCore(), options: Partial<Options> = {}) {
+	constructor(public driver: Driver = new MemDriver(), options: Partial<Options> = {}) {
 		this.#options = {
 			prefix: [],
 			divisor: ".",
@@ -29,7 +29,7 @@ export class Kv<V = any> {
 	}
 
 	async gets<X extends V = V>(...keys: string[]) {
-		const strings = await this.core.gets(...keys.map(this.#prefixer.prefix))
+		const strings = await this.driver.gets(...keys.map(this.#prefixer.prefix))
 		return (strings.map(string => string === undefined
 			? string
 			: Data.parse<V>(string))
@@ -55,7 +55,7 @@ export class Kv<V = any> {
 	}
 
 	async hasKeys(...keys: string[]) {
-		return this.core.hasKeys(...keys.map(this.#prefixer.prefix))
+		return this.driver.hasKeys(...keys.map(this.#prefixer.prefix))
 	}
 
 	async has(key: string) {
@@ -64,7 +64,7 @@ export class Kv<V = any> {
 	}
 
 	async *keys(scan: Scan = {}) {
-		for await (const key of this.core.keys(this.#prefixer.scan(scan)))
+		for await (const key of this.driver.keys(this.#prefixer.scan(scan)))
 			yield this.#prefixer.unprefix(key)
 	}
 
@@ -77,7 +77,7 @@ export class Kv<V = any> {
 	}
 
 	async *entries<X extends V = V>(scan: Scan = {}) {
-		for await (const [key, value] of this.core.entries(this.#prefixer.scan(scan)))
+		for await (const [key, value] of this.driver.entries(this.#prefixer.scan(scan)))
 			yield [this.#prefixer.unprefix(key), Data.parse<V>(value)] as [string, X]
 	}
 
@@ -88,7 +88,7 @@ export class Kv<V = any> {
 
 	async transaction(fn: (write: Writer<V>) => Write[][]) {
 		const writes = fn(this.write).flat()
-		return this.core.transaction(...writes)
+		return this.driver.transaction(...writes)
 	}
 
 	async put<X extends V = V>(key: string, value: X | undefined) {
@@ -135,7 +135,7 @@ export class Kv<V = any> {
 
 	/** create a kv where all keys are given a certain prefix */
 	namespace<X extends V = V>(prefix: string) {
-		return new Kv<X>(this.core, {
+		return new Kv<X>(this.driver, {
 			...this.#options,
 			prefix: [...this.#options.prefix, prefix],
 		})

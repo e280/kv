@@ -1,9 +1,9 @@
 
 import {Level} from "level"
-import {Core} from "../parts/core.js"
+import {Driver} from "../parts/driver.js"
 import {Scan, Write} from "../parts/types.js"
 
-export class LevelCore extends Core {
+export class LevelDriver extends Driver {
 	#db: Level<string, string>
 
 	constructor(path: string) {

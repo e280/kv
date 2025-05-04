@@ -1,22 +1,17 @@
 
-import {ev} from "../parts/ev.js"
-import {Core} from "../parts/core.js"
+import {Driver} from "../parts/driver.js"
 import {Scan, Write} from "../parts/types.js"
 import {scanMatch} from "../parts/scan-match.js"
 
-export class StorageCore extends Core {
-	static onStorageEvent = (fn: () => void) => ev(window, {storage: fn})
-
-	constructor(public storage: Storage = window.localStorage) {
-		super()
-	}
+export class MemDriver extends Driver {
+	#map = new Map<string, string>()
 
 	async gets(...keys: string[]) {
-		return keys.map(key => (this.storage.getItem(key) ?? undefined))
+		return keys.map(key => this.#map.get(key))
 	}
 
 	async hasKeys(...keys: string[]) {
-		return keys.map(key => (this.storage.getItem(key) !== null))
+		return keys.map(key => this.#map.has(key))
 	}
 
 	async *keys(scan: Scan = {}) {
@@ -25,7 +20,7 @@ export class StorageCore extends Core {
 
 		let count = 0
 
-		for (const key of Object.keys(this.storage)) {
+		for (const key of this.#map.keys()) {
 			if (scanMatch(key, scan)) {
 				yield key
 				count += 1
@@ -41,7 +36,7 @@ export class StorageCore extends Core {
 
 		let count = 0
 
-		for (const [key, value] of Object.entries(this.storage)) {
+		for (const [key, value] of this.#map.entries()) {
 			if (scanMatch(key, scan)) {
 				yield [key, value] as [string, string]
 				count += 1
@@ -54,9 +49,9 @@ export class StorageCore extends Core {
 	async transaction(...writes: Write[]) {
 		for (const [key, value] of writes) {
 			if (value === undefined)
-				this.storage.removeItem(key)
+				this.#map.delete(key)
 			else
-				this.storage.setItem(key, value)
+				this.#map.set(key, value)
 		}
 	}
 }

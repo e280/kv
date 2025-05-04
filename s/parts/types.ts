@@ -14,16 +14,5 @@ export type Scan = {
 	limit?: number
 }
 
-export type PutWrite = {
-	kind: "put"
-	key: string
-	value: string
-}
-
-export type DelWrite = {
-	kind: "del"
-	key: string
-}
-
-export type Write = PutWrite | DelWrite
+export type Write = [string, string | undefined]
 

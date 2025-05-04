@@ -46,10 +46,12 @@ export class LevelCore extends Core {
 
 	async transaction(...writes: Write[]) {
 		return this.#db.batch(
-			writes.map(write => (write.kind === "put"
-				? {type: "put", key: write.key, value: write.value}
-				: {type: "del", key: write.key}
+			writes.map(([key, value]) => (
+				(value === undefined)
+					? {type: "del", key}
+					: {type: "put", key, value}
 			))
 		)
 	}
 }
+

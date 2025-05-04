@@ -52,20 +52,11 @@ export class StorageCore extends Core {
 	}
 
 	async transaction(...writes: Write[]) {
-		for (const write of writes) {
-			switch (write.kind) {
-
-				case "put":
-					this.storage.setItem(write.key, write.value)
-					break
-
-				case "del":
-					this.storage.removeItem(write.key)
-					break
-
-				default:
-					throw new Error(`unknown write kind`)
-			}
+		for (const [key, value] of writes) {
+			if (value === undefined)
+				this.storage.removeItem(key)
+			else
+				this.storage.setItem(key, value)
 		}
 	}
 }

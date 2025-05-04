@@ -47,20 +47,11 @@ export class MemCore extends Core {
 	}
 
 	async transaction(...writes: Write[]) {
-		for (const write of writes) {
-			switch (write.kind) {
-
-				case "put":
-					this.#map.set(write.key, write.value)
-					break
-
-				case "del":
-					this.#map.delete(write.key)
-					break
-
-				default:
-					throw new Error(`unknown write kind`)
-			}
+		for (const [key, value] of writes) {
+			if (value === undefined)
+				this.#map.delete(key)
+			else
+				this.#map.set(key, value)
 		}
 	}
 }

@@ -11,20 +11,12 @@ export class Writer<V = any> {
 	}
 
 	puts<X extends V = V>(...entries: [string, X | undefined][]): Write[] {
-		return entries.map(([k, value]) => {
+		return entries.map(([k, v]) => {
 			const key = this.#prefixer.prefix(k)
-
-			// translate undefined put as del
-			return (value === undefined )
-				? {
-					kind: "del",
-					key,
-				}
-				: {
-					kind: "put",
-					key,
-					value: Data.stringify(value),
-				}
+			const value = v === undefined
+				? undefined
+				: Data.stringify(v)
+			return [key, value]
 		})
 	}
 
@@ -33,10 +25,7 @@ export class Writer<V = any> {
 	}
 
 	del(...keys: string[]): Write[] {
-		return keys.map(key => ({
-			kind: "del",
-			key: this.#prefixer.prefix(key),
-		}))
+		return keys.map(key => [this.#prefixer.prefix(key), undefined])
 	}
 }
 

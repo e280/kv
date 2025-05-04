@@ -17,6 +17,36 @@ await Science.run({
 			await kv.put("hello", 123)
 			expect(await kv.get("hello")).is(123)
 		}),
+
+		"not found is undefined": test(async() => {
+			const kv = new Kv()
+			expect(await kv.get("hello")).is(undefined)
+		}),
+
+		"put undefined": test(async() => {
+			const kv = new Kv<string>()
+			await kv.put("hello", "world")
+			expect(await kv.get("hello")).is("world")
+			await kv.put("hello", undefined)
+			expect(await kv.get("hello")).is(undefined)
+			expect(await kv.has("hello")).is(false)
+		}),
+
+		"puts undefined": test(async() => {
+			const kv = new Kv<string>()
+			await kv.put("alpha", "ok")
+			await kv.put("bravo", "ok")
+			expect(await kv.get("alpha")).is("ok")
+			expect(await kv.get("bravo")).is("ok")
+			await kv.puts(
+				["alpha", undefined],
+				["bravo", undefined],
+			)
+			expect(await kv.get("alpha")).is(undefined)
+			expect(await kv.get("bravo")).is(undefined)
+			expect(await kv.has("alpha")).is(false)
+			expect(await kv.has("bravo")).is(false)
+		}),
 	}),
 
 	"iterate": suite({
@@ -133,7 +163,7 @@ await Science.run({
 	}),
 
 	"transaction": suite({
-		"write": test(async() => {
+		"write put/del": test(async() => {
 			const kv = new Kv()
 			await kv.put("hello", "world")
 			await kv.transaction(tn => [
@@ -142,6 +172,34 @@ await Science.run({
 			])
 			expect(await kv.get("hello")).is(undefined)
 			expect(await kv.get("alpha")).is("bravo")
+		}),
+		"put undefined": test(async() => {
+			const kv = new Kv<string>()
+			await kv.put("alpha", "ok")
+			await kv.put("bravo", "ok")
+			expect(await kv.get("alpha")).is("ok")
+			expect(await kv.get("bravo")).is("ok")
+			await kv.transaction(tn => [
+				tn.put("alpha", undefined),
+				tn.put("bravo", undefined),
+			])
+			expect(await kv.get("alpha")).is(undefined)
+			expect(await kv.get("bravo")).is(undefined)
+		}),
+		"puts undefined": test(async() => {
+			const kv = new Kv<string>()
+			await kv.put("alpha", "ok")
+			await kv.put("bravo", "ok")
+			expect(await kv.get("alpha")).is("ok")
+			expect(await kv.get("bravo")).is("ok")
+			await kv.transaction(tn => [
+				tn.puts(
+					["alpha", undefined],
+					["bravo", undefined],
+				),
+			])
+			expect(await kv.get("alpha")).is(undefined)
+			expect(await kv.get("bravo")).is(undefined)
 		}),
 		"multi-tier": test(async() => {
 			const kv = new Kv()

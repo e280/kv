@@ -10,6 +10,11 @@
 		"x",
 		"s"
 	],
+	"exports": {
+		".": "./x/index.js",
+		"./level": "./x/drivers/level.js",
+		"./*": "./*"
+	},
 	"scripts": {
 		"build": "run-s _clean _tsc _links",
 		"count": "find s -path '*/_archive' -prune -o -name '*.ts' -exec wc -l {} +",

@@ -6,7 +6,7 @@ export class Store<V = any> {
 	constructor(public kv: Kv, public key: string) {}
 
 	async put(value: V | undefined) {
-		return this.kv.put(this.key, value)
+		return this.kv.set(this.key, value)
 	}
 
 	async get(): Promise<V | undefined> {

@@ -8,13 +8,13 @@ await Science.run({
 	"access": suite({
 		"string": test(async() => {
 			const kv = new Kv()
-			await kv.put("hello", "world")
+			await kv.set("hello", "world")
 			expect(await kv.get("hello")).is("world")
 		}),
 
 		"number": test(async() => {
 			const kv = new Kv()
-			await kv.put("hello", 123)
+			await kv.set("hello", 123)
 			expect(await kv.get("hello")).is(123)
 		}),
 
@@ -23,22 +23,22 @@ await Science.run({
 			expect(await kv.get("hello")).is(undefined)
 		}),
 
-		"put undefined": test(async() => {
+		"set undefined": test(async() => {
 			const kv = new Kv<string>()
-			await kv.put("hello", "world")
+			await kv.set("hello", "world")
 			expect(await kv.get("hello")).is("world")
-			await kv.put("hello", undefined)
+			await kv.set("hello", undefined)
 			expect(await kv.get("hello")).is(undefined)
 			expect(await kv.has("hello")).is(false)
 		}),
 
-		"puts undefined": test(async() => {
+		"sets undefined": test(async() => {
 			const kv = new Kv<string>()
-			await kv.put("alpha", "ok")
-			await kv.put("bravo", "ok")
+			await kv.set("alpha", "ok")
+			await kv.set("bravo", "ok")
 			expect(await kv.get("alpha")).is("ok")
 			expect(await kv.get("bravo")).is("ok")
-			await kv.puts(
+			await kv.sets(
 				["alpha", undefined],
 				["bravo", undefined],
 			)
@@ -53,30 +53,30 @@ await Science.run({
 		"keys": suite({
 			"basic": test(async() => {
 				const kv = new Kv()
-				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				await kv.sets(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
 				const keys = await collect(kv.keys())
 				expect(keys.length).is(4)
 			}),
 			"start/end": test(async() => {
 				const kv = new Kv()
-				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				await kv.sets(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
 				const keys = await collect(kv.keys({start: "record:2", end: "record:3"}))
 				expect(keys.length).is(2)
 				expect(keys[0]).is("record:2")
 			}),
 			"limit": test(async() => {
 				const kv = new Kv()
-				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				await kv.sets(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
 				const keys = await collect(kv.keys({limit: 2}))
 				expect(keys.length).is(2)
 				expect(keys[0]).is("record:1")
 			}),
 			"on namespace": test(async() => {
 				const kv = new Kv()
-				await kv.put("bad", true)
+				await kv.set("bad", true)
 				const sub = kv.namespace("good")
-				await sub.put("1", true)
-				await sub.put("2", true)
+				await sub.set("1", true)
+				await sub.set("2", true)
 				const keys = await collect(sub.keys())
 				expect(keys.length).is(2)
 				expect(keys.includes("1")).ok()
@@ -88,13 +88,13 @@ await Science.run({
 		"entries": suite({
 			"basic": test(async() => {
 				const kv = new Kv()
-				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				await kv.sets(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
 				const entries = await collect(kv.entries())
 				expect(entries.length).is(4)
 			}),
 			"start/end": test(async() => {
 				const kv = new Kv()
-				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				await kv.sets(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
 				const entries = await collect(kv.entries({start: "record:2", end: "record:3"}))
 				expect(entries.length).is(2)
 				expect(entries[0][0]).is("record:2")
@@ -102,7 +102,7 @@ await Science.run({
 			}),
 			"limit": test(async() => {
 				const kv = new Kv()
-				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				await kv.sets(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
 				const entries = await collect(kv.entries({limit: 2}))
 				expect(entries.length).is(2)
 				expect(entries[0][0]).is("record:1")
@@ -113,7 +113,7 @@ await Science.run({
 		"values": suite({
 			"basic": test(async() => {
 				const kv = new Kv()
-				await kv.puts(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
+				await kv.sets(["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4])
 				const values = await collect(kv.values())
 				expect(values.length).is(4)
 				expect(values[0]).is(1)
@@ -128,7 +128,7 @@ await Science.run({
 		"access": test(async() => {
 			const kv = new Kv()
 			const sub = kv.namespace("a.b")
-			await sub.put("hello", 123)
+			await sub.set("hello", 123)
 			expect(await sub.get("hello")).is(123)
 			expect(await kv.get("a.b:hello")).is(123)
 		}),
@@ -136,7 +136,7 @@ await Science.run({
 		"sub access": test(async() => {
 			const kv = new Kv()
 			const subsub = kv.namespace("a.b").namespace("c")
-			await subsub.put("hello", 123)
+			await subsub.set("hello", 123)
 			expect(await subsub.get("hello")).is(123)
 			expect(await kv.get("a.b.c:hello")).is(123)
 		}),
@@ -144,7 +144,7 @@ await Science.run({
 		"sub iterate keys": test(async() => {
 			const kv = new Kv()
 			const subsub = kv.namespace("a.b").namespace("c")
-			await subsub.put("123", true)
+			await subsub.set("123", true)
 			const [key] = await collect(subsub.keys())
 			expect(key).is("123")
 		}),
@@ -153,8 +153,8 @@ await Science.run({
 			const kv = new Kv()
 			const alpha = kv.namespace("alpha")
 			const bravo = kv.namespace("bravo")
-			await alpha.put("hello1", 1)
-			await bravo.put("hello2", 2)
+			await alpha.set("hello1", 1)
+			await bravo.set("hello2", 2)
 			expect((await Kv.collect(kv.keys())).length).is(2)
 			await bravo.clear()
 			expect((await Kv.collect(kv.keys())).length).is(1)
@@ -163,37 +163,37 @@ await Science.run({
 	}),
 
 	"transaction": suite({
-		"write put/del": test(async() => {
+		"write set/del": test(async() => {
 			const kv = new Kv()
-			await kv.put("hello", "world")
+			await kv.set("hello", "world")
 			await kv.transaction(tn => [
-				tn.put("alpha", "bravo"),
+				tn.set("alpha", "bravo"),
 				tn.del("hello"),
 			])
 			expect(await kv.get("hello")).is(undefined)
 			expect(await kv.get("alpha")).is("bravo")
 		}),
-		"put undefined": test(async() => {
+		"set undefined": test(async() => {
 			const kv = new Kv<string>()
-			await kv.put("alpha", "ok")
-			await kv.put("bravo", "ok")
+			await kv.set("alpha", "ok")
+			await kv.set("bravo", "ok")
 			expect(await kv.get("alpha")).is("ok")
 			expect(await kv.get("bravo")).is("ok")
 			await kv.transaction(tn => [
-				tn.put("alpha", undefined),
-				tn.put("bravo", undefined),
+				tn.set("alpha", undefined),
+				tn.set("bravo", undefined),
 			])
 			expect(await kv.get("alpha")).is(undefined)
 			expect(await kv.get("bravo")).is(undefined)
 		}),
-		"puts undefined": test(async() => {
+		"sets undefined": test(async() => {
 			const kv = new Kv<string>()
-			await kv.put("alpha", "ok")
-			await kv.put("bravo", "ok")
+			await kv.set("alpha", "ok")
+			await kv.set("bravo", "ok")
 			expect(await kv.get("alpha")).is("ok")
 			expect(await kv.get("bravo")).is("ok")
 			await kv.transaction(tn => [
-				tn.puts(
+				tn.sets(
 					["alpha", undefined],
 					["bravo", undefined],
 				),
@@ -205,8 +205,8 @@ await Science.run({
 			const kv = new Kv()
 			const subsub = kv.namespace("a.b").namespace("c")
 			await kv.transaction(tn => [
-				tn.put("alpha", "bravo"),
-				subsub.write.put("charlie", "delta"),
+				tn.set("alpha", "bravo"),
+				subsub.write.set("charlie", "delta"),
 			])
 			expect(await kv.get("alpha")).is("bravo")
 			expect(await subsub.get("charlie")).is("delta")

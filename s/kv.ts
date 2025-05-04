@@ -91,12 +91,12 @@ export class Kv<V = any> {
 		return this.driver.transaction(...writes)
 	}
 
-	async put<X extends V = V>(key: string, value: X | undefined) {
-		return this.transaction(w => [w.put(key, value)])
+	async set<X extends V = V>(key: string, value: X | undefined) {
+		return this.transaction(w => [w.set(key, value)])
 	}
 
-	async puts<X extends V = V>(...entries: [string, X | undefined][]) {
-		return this.transaction(w => [w.puts(...entries)])
+	async sets<X extends V = V>(...entries: [string, X | undefined][]) {
+		return this.transaction(w => [w.sets(...entries)])
 	}
 
 	async del(...keys: string[]) {
@@ -107,7 +107,7 @@ export class Kv<V = any> {
 		let value: X | undefined = await this.get(key)
 		if (value === undefined) {
 			value = await make()
-			await this.transaction(w => [w.put(key, value!)])
+			await this.transaction(w => [w.set(key, value!)])
 		}
 		return value
 	}
@@ -125,7 +125,7 @@ export class Kv<V = any> {
 		if (version === latest)
 			return
 		await fn(version)
-		await kv.put(key, latest)
+		await kv.set(key, latest)
 	}
 
 	/** create a store which can put or get on a single key */

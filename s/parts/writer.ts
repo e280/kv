@@ -10,7 +10,7 @@ export class Writer<V = any> {
 		this.#prefixer = prefixer
 	}
 
-	puts<X extends V = V>(...entries: [string, X | undefined][]): Write[] {
+	sets<X extends V = V>(...entries: [string, X | undefined][]): Write[] {
 		return entries.map(([k, v]) => {
 			const key = this.#prefixer.prefix(k)
 			const value = v === undefined
@@ -20,8 +20,8 @@ export class Writer<V = any> {
 		})
 	}
 
-	put<X extends V = V>(key: string, value: X | undefined): Write[] {
-		return this.puts([key, value])
+	set<X extends V = V>(key: string, value: X | undefined): Write[] {
+		return this.sets([key, value])
 	}
 
 	del(...keys: string[]): Write[] {

@@ -5,7 +5,7 @@ import {Maker} from "./types.js"
 export class Store<V = any> {
 	constructor(public kv: Kv, public key: string) {}
 
-	async put(value: V) {
+	async put(value: V | undefined) {
 		return this.kv.put(this.key, value)
 	}
 

@@ -91,11 +91,11 @@ export class Kv<V = any> {
 		return this.core.transaction(...writes)
 	}
 
-	async put<X extends V = V>(key: string, value: X) {
+	async put<X extends V = V>(key: string, value: X | undefined) {
 		return this.transaction(w => [w.put(key, value)])
 	}
 
-	async puts<X extends V = V>(...entries: [string, X][]) {
+	async puts<X extends V = V>(...entries: [string, X | undefined][]) {
 		return this.transaction(w => [w.puts(...entries)])
 	}
 

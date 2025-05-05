@@ -1,11 +1,9 @@
 
 # 🪇 Kv — Key-value Json Database
 
-I just wanted a damn simple typescript database.
+I just wanted a damn simple typescript database. String keys. Json values.
 
-String keys. Json values.
-
-Kv is an agnostic interface. You jam in different "cores" to write data in-memory, or to local storage, or to [leveldb](https://github.com/Level/level).
+Kv is an agnostic interface. You jam in different drivers to write data in-memory, or to local storage, or to [leveldb](https://github.com/Level/level).
 
 Kv does smart stuff, like namespacing, batch operations, and atomic write transactions.
 
@@ -20,41 +18,43 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
 ## Get started
 
 ### Make your Kv instance
-- Kv uses the in-memory `MemCore` by default
+- Kv uses the in-memory `MemDriver` by default
   ```ts
   import {Kv} from "@e280/kv"
 
   const kv = new Kv()
   ```
-- or alternatively, pop in a `LevelCore` to use [leveldb](https://github.com/Level/level), a local on-disk database (kinda like sqlite)
+- or alternatively, pop in a `LevelDriver` to use [leveldb](https://github.com/Level/level), a local on-disk database (kinda like sqlite)
   ```ts
   import {Kv} from "@e280/kv"
-  import {LevelCore} from "@e280/kv/x/cores/level.js"
+  import {LevelDriver} from "@e280/kv/level"
 
-  const kv = new Kv(new LevelCore("path/to/database"))
+  const kv = new Kv(new LevelDriver("path/to/database"))
   ```
-- or alternatively, pop in a `StorageCore` to use browser localStorage
+- or alternatively, pop in a `StorageDriver` to use browser localStorage
   ```ts
-  import {Kv, StorageCore} from "@e280/kv"
+  import {Kv, StorageDriver} from "@e280/kv"
 
-  const kv = new Kv(new StorageCore())
+  const kv = new Kv(new StorageDriver())
   ```
 
-### Put/get some key-value pairs
+### Get and set key-value pairs
 - The most basic thing you can do with Kv, is write and read values using string keys.
   ```ts
-  await kv.put("101", "hello")
-  await kv.put("102", 123.456)
+  await kv.set("101", "hello")
+  await kv.set("102", 123.456)
 
-  console.log(await kv.get("101")) // "hello"
-  console.log(await kv.get("102")) // 123.456
+  await kv.get("101") // "hello"
+  await kv.get("102") // 123.456
+
+  await kv.get("103") // undefined
   ```
 
 <br/>
 
 ## Kv usage
 
-### Example usage pattern
+### Example usage walkthrough
 - so, for my use case, i'm doing stuff like saving user accounts, it might give you an idea of how Kv is meant to be used
   ```ts
   // create a kv instance
@@ -77,8 +77,8 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
 
     // create an atomic write transaction to save the data
     await kv.transaction(() => [
-      accounts.write.put(account.id, account),
-      characters.write.put(character.id, character),
+      accounts.write.set(account.id, account),
+      characters.write.set(character.id, character),
     ])
   }
 
@@ -90,18 +90,27 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   ```
 
 ### Functionality reference
-- `put` saves key-value pairs
+
+#### Setting stuff
+- `set` saves key-value pairs
   ```ts
-  await kv.put("hello", "world")
+  await kv.set("hello", "world")
   ```
-- `put` can save any serializable json-friendly javascript crap
+- `set` can save any serializable json-friendly javascript crap
   ```ts
-  await kv.put("hello", {data: ["world"], count: 123.456})
+  await kv.set("hello", {data: ["world"], count: 123.456})
   ```
-- `puts` saves many pairs, as an atomic batch
+- `set` will interpret `undefined` as the same as a deletion (like json)
   ```ts
-  await kv.puts(["101", "alpha"], ["102", "bravo"])
+  await kv.set("hello", undefined) // same as deleting "hello"
   ```
+  - like json you can use `null` instead of you want the key to exist
+- `sets` saves many pairs, as an atomic batch
+  ```ts
+  await kv.sets(["101", "alpha"], ["102", "bravo"])
+  ```
+
+#### Getting stuff
 - `get` loads a value (or undefined if the key's not found)
   ```ts
   await kv.get("101")
@@ -112,6 +121,8 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   await kv.gets("101", "102", "103")
     // ["alpha", "bravo", undefined]
   ```
+
+#### Deleting stuff
 - `del` deletes things
   ```ts
   await kv.del("hello")
@@ -120,6 +131,8 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   ```ts
   await kv.del("101", "102", "103")
   ```
+
+#### Having stuff
 - `has` checks if a key exists
   ```ts
   await kv.has("hello")
@@ -130,6 +143,8 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   await kv.hasKeys("101", "102", "103")
     // [true, true, false]
   ```
+
+#### Fancy stuff
 - `require` gets a value, but throws an error if the key is missing
   ```ts
   await kv.require("101")
@@ -143,7 +158,7 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
 - `guarantee` gets or creates a thing
   ```ts
   await kv.guarantee("hello", () => "world")
-    // "world" (or an error is thrown)
+    // "world"
   ```
 
 ### Transactions make you cool and incredible
@@ -152,14 +167,14 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   // all these succeed or fail together
   await kv.transaction(write => [
     write.del("obsolete:99"),
-    write.put("owners:4", [101, 102]),
-    write.puts(
+    write.set("owners:4", [101, 102]),
+    write.sets(
       ["records:101", {msg: "lol", owner: 4}],
       ["records:102", {msg: "lel", owner: 4}],
     ),
   ])
   ```
-  - you can use `write.put`, `write.puts`, and `write.del` to schedule write operations into the transaction
+  - you can use `write.set`, `write.sets`, and `write.del` to schedule write operations into the transaction
 
 ### Namespaces keep things tidy
 - a namespace is just a Kv instance that has a key prefix assigned
@@ -167,12 +182,12 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   const records = kv.namespace("records")
 
   // writes to key "records:123"
-  await records.put("123", "lol")
+  await records.set("123", "lol")
   ```
-- a namespace can do everything a Kv can do
+- a namespace can do everything a Kv can do (it *is* a Kv)
   ```ts
   const records = kv.namespace("records")
-  await records.put("124", {data: "bingus"})
+  await records.set("124", {data: "bingus"})
   await records.transaction(write => [write.del("124")])
   ```
 - yes, you can namespace a namespace — *it's turtles all the way down*
@@ -182,10 +197,10 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   const accounts = records.namespace("accounts")
 
   // writes to key "records.owners:5"
-  await owners.put("5", "lol")
+  await owners.set("5", "lol")
 
   // writes to key "records.accounts:123"
-  await accounts.put("123", "rofl")
+  await accounts.set("123", "rofl")
   ```
 - you can constrain a namespace with a typescript type
   ```ts
@@ -205,9 +220,9 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   const accounts = records.namespace("accounts")
 
   await kv.transaction(() => [
-    owners.write.put("5", {records: [101, 102]}),
-    accounts.write.put("101", {data: "alpha", owner: 5}),
-    accounts.write.put("102", {data: "bravo", owner: 5}),
+    owners.write.set("5", {records: [101, 102]}),
+    accounts.write.set("101", {data: "alpha", owner: 5}),
+    accounts.write.set("102", {data: "bravo", owner: 5}),
   ])
   ```
 
@@ -217,7 +232,7 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   const login = kv.store<Login>("login")
 
   // save data to the store
-  await login.put({token: "lol"})
+  await login.set({token: "lol"})
 
   // load data from the store
   const {token} = await login.get()
@@ -225,11 +240,11 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
 
 <br/>
 
-## Cores
-- if you want Kv to operate on a new database, it's pretty easy to write a new Core
-- here is the abstract Core class you'd have to extend
+## Drivers
+- if you want Kv to operate on a new database, it's pretty easy to write a new Driver
+- here is the abstract Driver class you'd have to extend
   ```ts
-  export abstract class Core {
+  export abstract class Driver {
     abstract gets(...keys: string[]): Promise<(string | undefined)[]>
     abstract hasKeys(...keys: string[]): Promise<boolean[]>
     abstract keys(scan?: Scan): AsyncGenerator<string>
@@ -237,15 +252,15 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
     abstract transaction(...writes: Write[]): Promise<void>
   }
   ```
-  - `transaction` only has to support two kinds of Write objects, `put` and `del`
-- then you can just provide your new core to the Kv constructor, eg
+  - `transaction` only has to support two kinds of Write objects, `set` and `del`
+- then you can just provide your new driver to the Kv constructor, eg
   ```ts
-  // instance your new core and give it to Kv
-  const kv = new Kv(new MyCore())
+  // instance your new driver and give it to Kv
+  const kv = new Kv(new MyDriver())
   ```
-- see [cores/mem.ts](./s/cores/mem.ts)
-- see [cores/level.ts](./s/cores/level.ts)
-- see [cores/storage.ts](./s/cores/storage.ts)
+- see [drivers/mem.ts](./s/drivers/mem.ts)
+- see [drivers/level.ts](./s/drivers/level.ts)
+- see [drivers/storage.ts](./s/drivers/storage.ts)
 - you can do it!
 
 <br/>

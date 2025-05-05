@@ -128,7 +128,7 @@ export class Kv<V = any> {
 		await kv.set(key, latest)
 	}
 
-	/** create a store which can put or get on a single key */
+	/** create a store which can set or get on a single key */
 	store<X extends V = V>(key: string) {
 		return new Store<X>(this, key)
 	}

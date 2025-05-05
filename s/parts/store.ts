@@ -5,7 +5,7 @@ import {Maker} from "./types.js"
 export class Store<V = any> {
 	constructor(public kv: Kv, public key: string) {}
 
-	async put(value: V | undefined) {
+	async set(value: V | undefined) {
 		return this.kv.set(this.key, value)
 	}
 
@@ -21,7 +21,7 @@ export class Store<V = any> {
 		let value: V | undefined = await this.get()
 		if (value === undefined) {
 			value = await make()
-			await this.put(value)
+			await this.set(value)
 		}
 		return value
 	}

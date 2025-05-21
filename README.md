@@ -1,21 +1,20 @@
 
-# 🪇 Kv — Key-value Json Database
+# 🪇 Kv
 
-I just wanted a damn simple typescript database. String keys. Json values.
+***Json Key-value Storage for TypeScript.***
 
-Kv is an agnostic interface. You jam in different drivers to write data in-memory, or to local storage, or to [leveldb](https://github.com/Level/level).
+Damn simple typescript database. String keys. Json values.
+
+Kv is an agnostic interface. You insert different drivers, which allows Kv to write data in-memory, or to local storage, or to [leveldb](https://github.com/Level/level), or wherever you want.
 
 Kv does smart stuff, like namespacing, batch operations, and atomic write transactions.
 
 <br/>
 
-## Install `@e280/kv`
-- `npm install @e280/kv`
-- include it into your project however you consume npm packages
-
-<br/>
-
 ## Get started
+
+### Install Kv into your project
+- `npm install @e280/kv`
 
 ### Make your Kv instance
 - Kv uses the in-memory `MemDriver` by default

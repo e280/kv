@@ -252,7 +252,6 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
     abstract transaction(...writes: Write[]): Promise<void>
   }
   ```
-  - `transaction` only has to support two kinds of Write objects, `set` and `del`
 - then you can just provide your new driver to the Kv constructor, eg
   ```ts
   // instance your new driver and give it to Kv

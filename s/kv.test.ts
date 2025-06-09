@@ -18,6 +18,14 @@ await Science.run({
 			expect(await kv.get("hello")).is(123)
 		}),
 
+		"object": test(async() => {
+			const kv = new Kv()
+			await kv.set("hello", {a: 1})
+			const obj = await kv.get("hello")
+			expect(obj).ok()
+			expect(obj.a).is(1)
+		}),
+
 		"not found is undefined": test(async() => {
 			const kv = new Kv()
 			expect(await kv.get("hello")).is(undefined)
@@ -46,6 +54,21 @@ await Science.run({
 			expect(await kv.get("bravo")).is(undefined)
 			expect(await kv.has("alpha")).is(false)
 			expect(await kv.has("bravo")).is(false)
+		}),
+	}),
+
+	"mem driver": suite({
+		"returned objects are clones": test(async() => {
+			const kv = new Kv()
+			await kv.set("hello", {a: 1})
+
+			const alpha = await kv.get("hello")
+			expect(alpha.a).is(1)
+			alpha.a = 2
+			expect(alpha.a).is(2)
+
+			const bravo = await kv.get("hello")
+			expect(bravo.a).is(1)
 		}),
 	}),
 

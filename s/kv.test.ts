@@ -183,6 +183,20 @@ await Science.run({
 			expect((await Kv.collect(kv.keys())).length).is(1)
 			expect((await Kv.collect(alpha.keys()))[0]).is("hello1")
 		}),
+
+		"no parent/child collisions": test(async() => {
+			const kv = new Kv()
+			const a = kv.namespace("a")
+			const b = a.namespace("b")
+			await a.set("hello1", 1)
+			await b.set("hello2", 2)
+			const akeys = await collect(a.keys())
+			const bkeys = await collect(b.keys())
+			expect(akeys.length).is(1)
+			expect(bkeys.length).is(1)
+			expect(akeys[0]).is("hello1")
+			expect(bkeys[0]).is("hello2")
+		}),
 	}),
 
 	"transaction": suite({

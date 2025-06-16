@@ -224,6 +224,14 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
     accounts.write.set("102", {data: "bravo", owner: 5}),
   ])
   ```
+- *new!* you can now also do scopes like this:
+  ```ts
+  const records = kv.namespace("records", "alpha")
+  const scoped = kv.scope("dead", "beef")
+
+  // writes to key "records.alpha:dead:beef:123"
+  await scoped.set(123, "hello")
+  ```
 
 ### Stores keep you focused
 - a store is an object that focuses on reading/writing the value of a single key

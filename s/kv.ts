@@ -18,7 +18,8 @@ export class Kv<V = any> {
 
 	constructor(public driver: Driver = new MemDriver(), options: Partial<Options> = {}) {
 		this.#options = {
-			prefix: [],
+			namespaces: [],
+			scopes: [],
 			divisor: ".",
 			delimiter: ":",
 			chunkSize: 10_000,
@@ -133,11 +134,19 @@ export class Kv<V = any> {
 		return new Store<X>(this, key)
 	}
 
-	/** create a kv where all keys are given a certain prefix */
-	namespace<X extends V = V>(prefix: string) {
+	/** prefix all keys with a non-listable namespace */
+	namespace<X extends V = V>(...namespaces: string[]) {
 		return new Kv<X>(this.driver, {
 			...this.#options,
-			prefix: [...this.#options.prefix, prefix],
+			namespaces: [...this.#options.namespaces, ...namespaces],
+		})
+	}
+
+	/** prefix all keys with a listable scope */
+	scope<X extends V = V>(...scopes: string[]) {
+		return new Kv<X>(this.driver, {
+			...this.#options,
+			scopes: [...this.#options.scopes, ...scopes],
 		})
 	}
 }

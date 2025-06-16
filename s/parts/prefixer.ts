@@ -2,34 +2,30 @@
 import {Options, Scan} from "./types.js"
 
 export class Prefixer {
-	#prefix: string | undefined
+	#prefix: string
 
 	constructor(options: Options) {
-		const {prefix, divisor, delimiter} = options
-		this.#prefix = prefix.length > 0
-			? prefix.join(divisor) + delimiter
-			: undefined
+		const {namespaces, scopes, divisor, delimiter} = options
+		const namespace = namespaces.join(divisor)
+		const combo = [namespace, ...scopes].join(delimiter)
+		this.#prefix = combo
+			? combo + delimiter
+			: ""
 	}
 
 	prefix = (key: string) => {
-		return this.#prefix
-			? this.#prefix + key
-			: key
+		return this.#prefix + key
 	}
 
 	unprefix = (fullkey: string) => {
-		const start = this.#prefix ? this.#prefix.length : 0
+		const start = this.#prefix.length
 		return fullkey.slice(start)
 	}
 
 	scan = (scan: Scan) => {
 		const {limit} = scan
-		const start = this.#prefix
-			? this.#prefix + (scan.start ?? "")
-			: scan.start
-		const end = this.#prefix
-			? this.#prefix + (scan.end ?? "\xFF")
-			: scan.end
+		const start = this.#prefix + (scan.start ?? "")
+		const end = this.#prefix + (scan.end ?? "\xFF")
 		return {limit, start, end}
 	}
 }

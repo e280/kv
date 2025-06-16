@@ -147,6 +147,17 @@ await Science.run({
 		}),
 	}),
 
+	"scope": suite({
+		"access": test(async() => {
+			const kv = new Kv()
+			const a = kv.namespace("a")
+			const scoped = a.scope("123", "234")
+			await scoped.set("hello", "world")
+			const keys = await collect(kv.keys())
+			expect(keys.length).is(1)
+		}),
+	}),
+
 	"namespace": suite({
 		"access": test(async() => {
 			const kv = new Kv()

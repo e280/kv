@@ -8,6 +8,10 @@
 
 ## v0.0
 
+### v0.0.0-10
+- 🍏 allow rest-param `kv.namespace("a", "b")`
+- 🍏 add `kv.scope("123", "deadbeef")`
+
 ### v0.0.0-4
 - 🟥 rename `Core` -> `Driver`
   - `MemCore` -> `MemDriver`

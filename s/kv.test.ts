@@ -184,6 +184,18 @@ await Science.run({
 			expect((await Kv.collect(alpha.keys()))[0]).is("hello1")
 		}),
 
+		"parent clear doesn't ruin child": test(async() => {
+			const kv = new Kv()
+			const alpha = kv.namespace("alpha")
+			const bravo = kv.namespace("bravo")
+			await alpha.set("hello1", 1)
+			await bravo.set("hello2", 2)
+			expect((await Kv.collect(kv.keys())).length).is(2)
+			await alpha.clear()
+			expect((await Kv.collect(kv.keys())).length).is(1)
+			expect((await Kv.collect(bravo.keys()))[0]).is("hello2")
+		}),
+
 		"no parent/child collisions": test(async() => {
 			const kv = new Kv()
 			const a = kv.namespace("a")

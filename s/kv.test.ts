@@ -156,6 +156,26 @@ await Science.run({
 			expect(await kv.get("a.b:hello")).is(123)
 		}),
 
+		"empty string still creates empty segments": test.only(async() => {
+			const kv = new Kv()
+			const sub1 = kv.scope("")
+			await sub1.set("hello", 123)
+			expect(await sub1.get("hello")).is(123)
+			expect(await kv.get(":hello")).is(123)
+			const sub2 = kv.scope("", "")
+			await sub2.set("hello", 123)
+			expect(await sub2.get("hello")).is(123)
+			expect(await kv.get(".:hello")).is(123)
+		}),
+
+		"void does not create empty segments": test(async() => {
+			const kv = new Kv()
+			const sub = kv.scope()
+			await sub.set("hello", 123)
+			expect(await sub.get("hello")).is(123)
+			expect(await kv.get("hello")).is(123)
+		}),
+
 		"sub access": test(async() => {
 			const kv = new Kv()
 			const subsub = kv.scope("a.b").scope("c")

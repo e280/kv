@@ -6,9 +6,8 @@ export class Prefixer {
 
 	constructor(options: Options) {
 		const {scopes, divisor, delimiter} = options
-		const scope = scopes.join(divisor)
-		this.#prefix = scope
-			? scope + delimiter
+		this.#prefix = scopes.length > 0
+			? scopes.join(divisor) + delimiter
 			: ""
 	}
 

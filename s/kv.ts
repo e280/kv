@@ -19,7 +19,6 @@ export class Kv<V = any> {
 	constructor(public driver: Driver = new MemDriver(), options: Partial<Options> = {}) {
 		this.#options = {
 			namespaces: [],
-			scopes: [],
 			divisor: ".",
 			delimiter: ":",
 			chunkSize: 10_000,
@@ -139,14 +138,6 @@ export class Kv<V = any> {
 		return new Kv<X>(this.driver, {
 			...this.#options,
 			namespaces: [...this.#options.namespaces, ...namespaces],
-		})
-	}
-
-	/** prefix all keys with a listable scope */
-	scope<X extends V = V>(...scopes: string[]) {
-		return new Kv<X>(this.driver, {
-			...this.#options,
-			scopes: [...this.#options.scopes, ...scopes],
 		})
 	}
 }

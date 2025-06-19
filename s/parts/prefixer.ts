@@ -5,11 +5,10 @@ export class Prefixer {
 	#prefix: string
 
 	constructor(options: Options) {
-		const {namespaces, scopes, divisor, delimiter} = options
+		const {namespaces, divisor, delimiter} = options
 		const namespace = namespaces.join(divisor)
-		const combo = [namespace, ...scopes].join(delimiter)
-		this.#prefix = combo
-			? combo + delimiter
+		this.#prefix = namespace
+			? namespace + delimiter
 			: ""
 	}
 

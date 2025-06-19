@@ -1,9 +1,14 @@
 
 import {Kv} from "../kv.js"
-import {Maker} from "./types.js"
+import {Writer} from "./writer.js"
+import {Maker, Write} from "./types.js"
 
 export class Store<V = any> {
-	constructor(public kv: Kv, public key: string) {}
+	write: StoreWriter
+
+	constructor(public kv: Kv, public key: string) {
+		this.write = new StoreWriter(kv.write, key)
+	}
 
 	async set(value: V | undefined) {
 		return this.kv.set(this.key, value)
@@ -24,6 +29,18 @@ export class Store<V = any> {
 			await this.set(value)
 		}
 		return value
+	}
+}
+
+export class StoreWriter<V = any> {
+	#write: Writer<V>
+
+	constructor(write: Writer<V>, public key: string) {
+		this.#write = write
+	}
+
+	set<X extends V = V>(value: X | undefined): Write[] {
+		return this.#write.set(this.key, value)
 	}
 }
 

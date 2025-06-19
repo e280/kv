@@ -2,7 +2,7 @@
 export type Maker<V> = () => (V | Promise<V>)
 
 export type Options = {
-	namespaces: string[]
+	scopes: string[]
 	divisor: string
 	delimiter: string
 	chunkSize: number

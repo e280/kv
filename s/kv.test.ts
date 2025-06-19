@@ -94,10 +94,10 @@ await Science.run({
 				expect(keys.length).is(2)
 				expect(keys[0]).is("record:1")
 			}),
-			"on namespace": test(async() => {
+			"on scope": test(async() => {
 				const kv = new Kv()
 				await kv.set("bad", true)
-				const sub = kv.namespace("good")
+				const sub = kv.scope("good")
 				await sub.set("1", true)
 				await sub.set("2", true)
 				const keys = await collect(sub.keys())
@@ -147,10 +147,10 @@ await Science.run({
 		}),
 	}),
 
-	"namespace": suite({
+	"scope": suite({
 		"access": test(async() => {
 			const kv = new Kv()
-			const sub = kv.namespace("a.b")
+			const sub = kv.scope("a.b")
 			await sub.set("hello", 123)
 			expect(await sub.get("hello")).is(123)
 			expect(await kv.get("a.b:hello")).is(123)
@@ -158,7 +158,15 @@ await Science.run({
 
 		"sub access": test(async() => {
 			const kv = new Kv()
-			const subsub = kv.namespace("a.b").namespace("c")
+			const subsub = kv.scope("a.b").scope("c")
+			await subsub.set("hello", 123)
+			expect(await subsub.get("hello")).is(123)
+			expect(await kv.get("a.b.c:hello")).is(123)
+		}),
+
+		"sub access rest params": test(async() => {
+			const kv = new Kv()
+			const subsub = kv.scope("a", "b", "c")
 			await subsub.set("hello", 123)
 			expect(await subsub.get("hello")).is(123)
 			expect(await kv.get("a.b.c:hello")).is(123)
@@ -166,7 +174,7 @@ await Science.run({
 
 		"sub iterate keys": test(async() => {
 			const kv = new Kv()
-			const subsub = kv.namespace("a.b").namespace("c")
+			const subsub = kv.scope("a.b").scope("c")
 			await subsub.set("123", true)
 			const [key] = await collect(subsub.keys())
 			expect(key).is("123")
@@ -174,8 +182,8 @@ await Science.run({
 
 		"localized clear": test(async() => {
 			const kv = new Kv()
-			const alpha = kv.namespace("alpha")
-			const bravo = kv.namespace("bravo")
+			const alpha = kv.scope("alpha")
+			const bravo = kv.scope("bravo")
 			await alpha.set("hello1", 1)
 			await bravo.set("hello2", 2)
 			expect((await Kv.collect(kv.keys())).length).is(2)
@@ -186,8 +194,8 @@ await Science.run({
 
 		"parent clear doesn't ruin child": test(async() => {
 			const kv = new Kv()
-			const alpha = kv.namespace("alpha")
-			const bravo = kv.namespace("bravo")
+			const alpha = kv.scope("alpha")
+			const bravo = kv.scope("bravo")
 			await alpha.set("hello1", 1)
 			await bravo.set("hello2", 2)
 			expect((await Kv.collect(kv.keys())).length).is(2)
@@ -198,8 +206,8 @@ await Science.run({
 
 		"no parent/child collisions": test(async() => {
 			const kv = new Kv()
-			const a = kv.namespace("a")
-			const b = a.namespace("b")
+			const a = kv.scope("a")
+			const b = a.scope("b")
 			await a.set("hello1", 1)
 			await b.set("hello2", 2)
 			const akeys = await collect(a.keys())
@@ -252,7 +260,7 @@ await Science.run({
 		}),
 		"multi-tier": test(async() => {
 			const kv = new Kv()
-			const subsub = kv.namespace("a.b").namespace("c")
+			const subsub = kv.scope("a.b").scope("c")
 			await kv.transaction(tn => [
 				tn.set("alpha", "bravo"),
 				subsub.write.set("charlie", "delta"),

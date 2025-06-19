@@ -8,6 +8,9 @@
 
 ## v0.0
 
+### v0.0.0-11
+- 🟥 rename `kv.namespace` to `kv.scope` (removing what was previous called scope)
+
 ### v0.0.0-10
 - 🍏 allow rest-param `kv.namespace("a", "b")`
 - 🍏 add `kv.scope("123", "deadbeef")`

@@ -59,16 +59,16 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   // create a kv instance
   const kv = new Kv()
 
-  // creating some typed namespaces for which i'll insert records
-  const accounts = kv.namespace<Account>("accounts")
-  const characters = kv.namespace<Character>("characters")
+  // creating some typed scopes for which i'll insert records
+  const accounts = kv.scope<Account>("accounts")
+  const characters = kv.scope<Character>("characters")
 
   // my app's function for adding a character to an account
   async function addCharacter(accountId: string, character: Character) {
 
     // obtain the account
     const account = await accounts.require(accountId)
-      // actually uses key `accounts:${accountId}` because of the namespace prefix
+      // actually uses key `accounts:${accountId}` because of the scope prefix
 
     // modifying the data
     character.ownerId = account.id
@@ -175,25 +175,25 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   ```
   - you can use `write.set`, `write.sets`, and `write.del` to schedule write operations into the transaction
 
-### Namespaces keep things tidy
-- a namespace is just a Kv instance that has a key prefix assigned
+### Scopes keep things tidy
+- a scope is just a Kv instance that has a key prefix assigned
   ```ts
-  const records = kv.namespace("records")
+  const records = kv.scope("records")
 
   // writes to key "records:123"
   await records.set("123", "lol")
   ```
-- a namespace can do everything a Kv can do (it *is* a Kv)
+- a scope can do everything a Kv can do (it *is* a Kv)
   ```ts
-  const records = kv.namespace("records")
+  const records = kv.scope("records")
   await records.set("124", {data: "bingus"})
   await records.transaction(write => [write.del("124")])
   ```
-- yes, you can namespace a namespace — *it's turtles all the way down*
+- yes, you can scope a scope — *it's turtles all the way down*
   ```ts
-  const records = kv.namespace("records")
-  const owners = records.namespace("owners")
-  const accounts = records.namespace("accounts")
+  const records = kv.scope("records")
+  const owners = records.scope("owners")
+  const accounts = records.scope("accounts")
 
   // writes to key "records.owners:5"
   await owners.set("5", "lol")
@@ -201,22 +201,22 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   // writes to key "records.accounts:123"
   await accounts.set("123", "rofl")
   ```
-- you can constrain a namespace with a typescript type
+- you can constrain a scope with a typescript type
   ```ts
   type MyData = {count: number}
 
     //                  provide your type
     //                           👇
-  const records = kv.namespace<MyData>("records")
+  const records = kv.scope<MyData>("records")
 
   // now typescript knows `count` is a number
   const {count} = records.get("123")
   ```
-- you can in fact do transactional writes across multiple namespaces
+- you can in fact do transactional writes across multiple scopes
   ```ts
-  const records = kv.namespace("records")
-  const owners = records.namespace("owners")
-  const accounts = records.namespace("accounts")
+  const records = kv.scope("records")
+  const owners = records.scope("owners")
+  const accounts = records.scope("accounts")
 
   await kv.transaction(() => [
     owners.write.set("5", {records: [101, 102]}),
@@ -226,7 +226,7 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
   ```
 - *new!* you can now also do scopes like this:
   ```ts
-  const records = kv.namespace("records", "alpha")
+  const records = kv.scope("records", "alpha")
   const scoped = kv.scope("dead", "beef")
 
   // writes to key "records.alpha:dead:beef:123"

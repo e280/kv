@@ -8,6 +8,17 @@
 
 ## v0.0
 
+### v0.0.0-12
+- 🟥 `kv.scope` param signature changed
+  - old `kv.scope(...scopes: string[])`
+  - new `kv.scope(scope: string, delimiter = ":")`
+  - you can now specify `delimiter` useful for allowing you to select keys across sub-scopes
+- 🍏 added new `kv.flatten()` helper
+  - makes a new kv clone with `delimiter: ""`
+  - these two forms are equivalent
+    - `kv.scope("alpha", "")`
+    - `kv.scope("alpha").flatten()`
+
 ### v0.0.0-11
 - 🟥 rename `kv.namespace` to `kv.scope` (removing what was previous called scope)
 

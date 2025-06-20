@@ -224,14 +224,27 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
     accounts.write.set("102", {data: "bravo", owner: 5}),
   ])
   ```
-- *new!* you can now also do scopes like this:
+- scopes automatically place a ":" delimiter to separate namespaces from subkeys
   ```ts
-  const records = kv.scope("records", "alpha")
-  const scoped = kv.scope("dead", "beef")
+  const records = kv.scope("records")
+  const alpha = records.scope("alpha")
 
-  // writes to key "records.alpha:dead:beef:123"
-  await scoped.set(123, "hello")
+  await records.set(1, "hello")
+    // writes to key "records:1"
+
+  await alpha.set(2, "hello")
+    // writes to key "records.alpha:2"
   ```
+  - no keys will collide between `records.keys()` and `alpha.keys()`
+  - however, you can deliberately flatten a scope, which allows you to select all keys across all sub scopes
+    ```ts
+    const flatRecords = records.flatten()
+
+    for await (const key of records.keys())
+      console.log(key)
+        // "records:1"
+        // "records.alpha:2"
+    ```
 
 ### Stores keep you focused
 - a store is an object that focuses on reading/writing the value of a single key

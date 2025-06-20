@@ -134,10 +134,19 @@ export class Kv<V = any> {
 	}
 
 	/** prefix all keys with a non-listable namespace */
-	scope<X extends V = V>(...namespaces: string[]) {
+	scope<X extends V = V>(scope: string, delimiter = this.#options.delimiter) {
 		return new Kv<X>(this.driver, {
 			...this.#options,
-			scopes: [...this.#options.scopes, ...namespaces],
+			delimiter,
+			scopes: [...this.#options.scopes, scope],
+		})
+	}
+
+	/** create a new Kv with delimiter set to "", thus counting sub-namespaces as accesible entries */
+	flatten() {
+		return new Kv<V>(this.driver, {
+			...this.#options,
+			delimiter: "",
 		})
 	}
 }

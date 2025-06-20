@@ -156,24 +156,16 @@ await Science.run({
 			expect(await kv.get("a.b:hello")).is(123)
 		}),
 
-		"empty string still creates empty segments": test.only(async() => {
+		"empty string still creates empty segments": test(async() => {
 			const kv = new Kv()
 			const sub1 = kv.scope("")
 			await sub1.set("hello", 123)
 			expect(await sub1.get("hello")).is(123)
 			expect(await kv.get(":hello")).is(123)
-			const sub2 = kv.scope("", "")
+			const sub2 = kv.scope("").scope("")
 			await sub2.set("hello", 123)
 			expect(await sub2.get("hello")).is(123)
 			expect(await kv.get(".:hello")).is(123)
-		}),
-
-		"void does not create empty segments": test(async() => {
-			const kv = new Kv()
-			const sub = kv.scope()
-			await sub.set("hello", 123)
-			expect(await sub.get("hello")).is(123)
-			expect(await kv.get("hello")).is(123)
 		}),
 
 		"sub access": test(async() => {
@@ -184,12 +176,28 @@ await Science.run({
 			expect(await kv.get("a.b.c:hello")).is(123)
 		}),
 
-		"sub access rest params": test(async() => {
+		"empty delimiter to wipe entire namespace": test(async() => {
 			const kv = new Kv()
-			const subsub = kv.scope("a", "b", "c")
-			await subsub.set("hello", 123)
-			expect(await subsub.get("hello")).is(123)
-			expect(await kv.get("a.b.c:hello")).is(123)
+			const a = kv.scope("a")
+			const aFlat = kv.scope("a", "")
+			const b = a.scope("b")
+			await b.set("hello", 123)
+			expect(await b.get("hello")).is(123)
+			expect(await kv.get("a.b:hello")).is(123)
+			await aFlat.clear()
+			expect(await b.get("hello")).is(undefined)
+		}),
+
+		"flatten for empty delimiter to wipe namespace": test(async() => {
+			const kv = new Kv()
+			const a = kv.scope("a")
+			const aFlat = kv.scope("a").flatten()
+			const b = a.scope("b")
+			await b.set("hello", 123)
+			expect(await b.get("hello")).is(123)
+			expect(await kv.get("a.b:hello")).is(123)
+			await aFlat.clear()
+			expect(await b.get("hello")).is(undefined)
 		}),
 
 		"sub iterate keys": test(async() => {

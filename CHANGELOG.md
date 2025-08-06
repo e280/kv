@@ -9,6 +9,10 @@
 ## v0.0
 
 ### v0.0.0-12
+- 🔶 remove wildcard path exports (more formal exports)
+- 🍏 update dependencies
+
+### v0.0.0-12
 - 🟥 `kv.scope` param signature changed
   - old `kv.scope(...scopes: string[])`
   - new `kv.scope(scope: string, delimiter = ":")`

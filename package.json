@@ -5,15 +5,14 @@
 	"license": "MIT",
 	"author": "Chase Moskal <chasemoskal@gmail.com>",
 	"type": "module",
-	"main": "x/index.js",
+	"main": "./x/index.js",
 	"files": [
 		"x",
 		"s"
 	],
 	"exports": {
 		".": "./x/index.js",
-		"./level": "./x/drivers/level.js",
-		"./*": "./*"
+		"./level": "./x/drivers/level.js"
 	},
 	"scripts": {
 		"build": "run-s _clean _tsc _links",

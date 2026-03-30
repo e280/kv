@@ -10,6 +10,12 @@
 
 ## v0.1
 
+### v0.1.2
+- 🍏 update deps
+
+### v0.1.1
+- 🍏 update deps, github actions
+
 ### v0.1.0
 - 🍏 update dependencies
 

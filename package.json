@@ -1,6 +1,6 @@
 {
 	"name": "@e280/kv",
-	"version": "0.1.2",
+	"version": "0.1.3",
 	"description": "Simple abstract key-value json database",
 	"license": "MIT",
 	"author": "Chase Moskal <chasemoskal@gmail.com>",

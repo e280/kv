@@ -10,6 +10,15 @@
 
 ## v0.1
 
+### v0.1.5
+- 🍏 update deps
+
+### v0.1.4
+- 🍏 update deps
+
+### v0.1.3
+- 🍏 update deps
+
 ### v0.1.2
 - 🍏 update deps
 

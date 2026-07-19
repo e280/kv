@@ -23,18 +23,24 @@ Kv does smart stuff, like namespacing, batch operations, and atomic write transa
 
   const kv = new Kv()
   ```
-- or alternatively, pop in a `LevelDriver` to use [leveldb](https://github.com/Level/level), a local on-disk database (kinda like sqlite)
+- or pop in a `LevelDriver` to use [leveldb](https://github.com/Level/level), a local on-disk database (kinda like sqlite)
   ```ts
   import {Kv} from "@e280/kv"
   import {LevelDriver} from "@e280/kv/level"
 
   const kv = new Kv(new LevelDriver("path/to/database"))
   ```
-- or alternatively, pop in a `StorageDriver` to use browser localStorage
+- or pop in a `StorageDriver` to use browser localStorage
   ```ts
   import {Kv, StorageDriver} from "@e280/kv"
 
   const kv = new Kv(new StorageDriver())
+  ```
+- or pop in an `IdbDriver` to use browser indexedDB
+  ```ts
+  import {Kv, IdbDriver, idbOpen} from "@e280/kv"
+
+  const kv = new Kv(new IdbDriver(await idbOpen("kv")))
   ```
 
 ### Get and set key-value pairs

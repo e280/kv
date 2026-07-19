@@ -1,103 +1,73 @@
 
+import {Idb} from "./idb/types.js"
+import {idbRange} from "./idb/range.js"
 import {Driver} from "../parts/driver.js"
 import {Scan, Write} from "../parts/types.js"
-
-const storeName = "kv"
+import {idbTransactions} from "./idb/transactions.js"
 
 export class IdbDriver extends Driver {
-	#db: Promise<IDBDatabase>
+	#tx
 
-	constructor(name = "kv") {
+	constructor(idb: Idb) {
 		super()
-		this.#db = open(name)
+		this.#tx = idbTransactions(idb)
 	}
 
 	async gets(...keys: string[]) {
-		const {store, done} = await this.#transaction("readonly")
-		const values = await Promise.all(keys.map(key => request(store.get(key))))
-		await done
-		return values as (string | undefined)[]
+		return this.#tx.readonly((store, wait) => (
+			Promise.all(
+				keys.map(key => wait<string | undefined>(store.get(key)))
+			)
+		))
 	}
 
 	async hasKeys(...keys: string[]) {
-		const {store, done} = await this.#transaction("readonly")
-		const values = await Promise.all(keys.map(key => request(store.getKey(key))))
-		await done
-		return values.map(value => value !== undefined)
+		return (
+			await this.#tx.readonly((store, wait) =>
+				Promise.all(
+					keys.map(key => wait<string>(store.getKey(key)))
+				)
+			)
+		).map(key => key !== undefined)
 	}
 
 	async *keys(scan: Scan) {
 		if (scan.limit === 0)
 			return
 
-		const {store, done} = await this.#transaction("readonly")
-		const keys = await request(store.getAllKeys(range(scan), scan.limit))
-		await done
-		yield* keys as string[]
+		const keys = await this.#tx.readonly((store, wait) =>
+			wait<string[]>(store.getAllKeys(idbRange(scan), scan.limit))
+		)
+
+		yield* keys
 	}
 
 	async *entries(scan: Scan) {
 		if (scan.limit === 0)
 			return
 
-		const {store, done} = await this.#transaction("readonly")
-		const [keys, values] = await Promise.all([
-			request(store.getAllKeys(range(scan), scan.limit)),
-			request(store.getAll(range(scan), scan.limit)),
-		])
-		await done
+		const [keys, values] = await this.#tx.readonly((store, wait) =>
+			Promise.all([
+				wait<string[]>(store.getAllKeys(idbRange(scan), scan.limit)),
+				wait<string[]>(store.getAll(idbRange(scan), scan.limit)),
+			])
+		)
 
-		for (let i = 0; i < keys.length; i++)
-			yield [keys[i], values[i]] as [string, string]
+		for (const [index, key] of keys.entries()) {
+			const value = values[index]
+			yield [key, value] as [string, string]
+		}
 	}
 
 	async transaction(...writes: Write[]) {
-		const {store, done} = await this.#transaction("readwrite")
-		for (const [key, value] of writes) {
-			if (value === undefined)
-				store.delete(key)
-			else
-				store.put(value, key)
-		}
-		await done
+		return this.#tx.readwrite(async store => {
+			for (const [key, value] of writes) {
+				if (value === undefined)
+					store.delete(key)
+				else
+					store.put(value, key)
+			}
+		})
 	}
-
-	async #transaction(mode: IDBTransactionMode) {
-		const db = await this.#db
-		const transaction = db.transaction(storeName, mode)
-		return {
-			store: transaction.objectStore(storeName),
-			done: complete(transaction),
-		}
-	}
-}
-
-function open(name: string) {
-	const opening = indexedDB.open(name, 1)
-	opening.onupgradeneeded = () => {
-		if (!opening.result.objectStoreNames.contains(storeName))
-			opening.result.createObjectStore(storeName)
-	}
-	return request(opening)
-}
-
-function request<R>(request: IDBRequest<R>) {
-	return new Promise<R>((resolve, reject) => {
-		request.onsuccess = () => resolve(request.result)
-		request.onerror = () => reject(request.error)
-	})
-}
-
-function complete(transaction: IDBTransaction) {
-	return new Promise<void>((resolve, reject) => {
-		transaction.oncomplete = () => resolve()
-		transaction.onabort = transaction.onerror = () => reject(transaction.error)
-	})
-}
-
-function range({start, end}: Scan) {
-	if (start && end) return IDBKeyRange.bound(start, end)
-	if (start) return IDBKeyRange.lowerBound(start)
-	if (end) return IDBKeyRange.upperBound(end)
 }
 

@@ -4,6 +4,7 @@ import {Op} from "./utils/op.js"
 import {Store} from "./store.js"
 import {chunks} from "./utils/chunks.js"
 import {Prefixer} from "./utils/prefixer.js"
+import {JsonCodec} from "./utils/json-codec.js"
 import {MemoryMagazine} from "./magazines/memory.js"
 import {Magazine, Change, Options, Scan, Pair} from "./types.js"
 
@@ -16,10 +17,10 @@ export class Kv<V = unknown> {
 	constructor(magazine: Magazine = new MemoryMagazine(), options: Partial<Options> = {}) {
 		this.#magazine = magazine
 		this.#options = {
+			codec: new JsonCodec(),
 			scopes: [],
 			divisor: ".",
 			delimiter: ":",
-			chunkSize: 1024,
 			...options,
 		}
 		this.#prefixer = new Prefixer(this.#options)
@@ -44,7 +45,7 @@ export class Kv<V = unknown> {
 
 	async commit(changes: Change<V>[]) {
 		await this.#magazine.commit(
-			changes.map(([key, value]) => [key, JSON.stringify(value)])
+			changes.map(([key, value]) => [key, this.#options.codec.encode(value)])
 		)
 	}
 
@@ -61,7 +62,7 @@ export class Kv<V = unknown> {
 		return (await this.#magazine.getMany(keys)).map(value =>
 			(value === undefined)
 				? undefined
-				: JSON.parse(value) as X
+				: this.#options.codec.decode(value) as X
 		)
 	}
 
@@ -89,7 +90,7 @@ export class Kv<V = unknown> {
 		scan = this.#prefixer.scan(scan)
 
 		for await (const [key, value] of this.#magazine.entries(scan))
-			yield [this.#prefixer.unprefix(key), JSON.parse(value)] as Pair<X>
+			yield [this.#prefixer.unprefix(key), this.#options.codec.decode(value)] as Pair<X>
 	}
 
 	async* keys(scan: Scan = {}) {
@@ -108,7 +109,7 @@ export class Kv<V = unknown> {
 		for await (const [key] of this.entries(scan))
 			keys.push(key)
 
-		for (const chunk of chunks(this.#options.chunkSize, keys))
+		for (const chunk of chunks(1024, keys))
 			await this.commit(chunk.map(key => this.op.delete(key)))
 	}
 }

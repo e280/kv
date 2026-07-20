@@ -32,6 +32,8 @@
   - 🟥 `kv.sets` is gone (use a kv.commit with many kv.op.set calls)
   - 🟥 `kv.flatten` renamed to `kv.crush`
 - 🟥 kv generic type now defaults to `unknown` (was `any`) -- this means you may need to be more explicit with types in some cases
+- 🟥 remove kv option `chunkSize`
+- 🍏 add kv option `codec` with type `Codec` which defaults to a json codec
 
 
 

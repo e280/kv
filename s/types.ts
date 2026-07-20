@@ -14,11 +14,16 @@ export type Scan = {
 	limit?: number
 }
 
+export type Codec = {
+	encode(value: unknown): string
+	decode<X = unknown>(text: string): X
+}
+
 export type Options = {
+	codec: Codec
 	scopes: string[]
 	divisor: string
 	delimiter: string
-	chunkSize: number
 }
 
 export type LevelLike = {

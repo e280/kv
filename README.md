@@ -145,6 +145,10 @@ const kv = new Kv()
     ```ts
     await kv.delete("hello")
     ```
+    you can also pass multiple keys.
+    ```ts
+    await kv.delete("123", "234", "345")
+    ```
 - **`has` checks whether a key exists.**
     ```ts
     await kv.has("hello")

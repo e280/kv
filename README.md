@@ -41,7 +41,7 @@ const kv = new Kv()
 
 ## 🪇 plug in your favorite kv magazine
 - **MemoryMagazine *(default),*** ephemeral in-memory storage.  
-    > *memory magazine has bad performance characteristics and is meant for testing.*
+    > *memory magazine is slow and the commits are not atomic. it's meant for testing.*
     ```ts
     import {Kv, MemoryMagazine} from "@e280/kv"
 
@@ -63,7 +63,7 @@ const kv = new Kv()
     const kv = new Kv(new IdbMagazine(idb))
     ```
 - **StorageMagazine,** in-browser localStorage/sessionStorage.
-    > *storage magazine has bad performance characteristics and is meant for small amounts of data.*
+    > *storage magazine is slow and the commits are not atomic. it's meant for small amounts of data.*
     ```ts
     import {Kv, StorageMagazine} from "@e280/kv"
 

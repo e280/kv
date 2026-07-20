@@ -38,7 +38,7 @@ export class Kv<V = unknown> {
 	}
 
 	/** no delimiter means all sub namespaces are accessible */
-	flatten() {
+	crush() {
 		return new Kv<V>(this.#magazine, {...this.#options, delimiter: ""})
 	}
 

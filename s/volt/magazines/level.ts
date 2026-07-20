@@ -1,11 +1,10 @@
 
-import {Level} from "level"
-import {Change, Magazine, Scan} from "../types.js"
+import {Change, LevelLike, Magazine, Scan} from "../types.js"
 
 export class LevelMagazine implements Magazine {
 	#level
 
-	constructor(level: Level) {
+	constructor(level: LevelLike) {
 		this.#level = level
 	}
 

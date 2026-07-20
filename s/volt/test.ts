@@ -193,10 +193,10 @@ await science.run({
 			expect(await b.get("hello")).is(undefined)
 		}),
 
-		"flatten for empty delimiter to wipe namespace": test(async() => {
+		"crush for empty delimiter to wipe namespace": test(async() => {
 			const kv = new Kv()
 			const a = kv.scope("a")
-			const aFlat = kv.scope("a").flatten()
+			const aFlat = kv.scope("a").crush()
 			const b = a.scope("b")
 			await b.set("hello", 123)
 			expect(await b.get("hello")).is(123)

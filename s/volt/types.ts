@@ -20,3 +20,9 @@ export type Options = {
 	chunkSize: number
 }
 
+export type LevelLike = {
+	batch(commands: ({type: "put", key: string, value: string} | {type: "del", key: string})[]): Promise<void>
+	getMany(keys: string[]): Promise<string[]>
+	iterator(o: {gte?: string, lte?: string, limit?: number}): AsyncIterable<[string, string]>
+}
+

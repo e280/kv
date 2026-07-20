@@ -132,10 +132,14 @@ const kv = new Kv()
     ```
 - 📣 **don't abuse the `.` divisor and `:` delimiter in scope names.**  
     kv doesn't escape the scope names, so using those characters could cause trouble.
-- **`crush` is black magic,** which allows the parents to hurt the children.
+- **`crush` is black magic,** which allows the parents to hurt their children.
+    ```ts
+    await records.crush().count()
+      // counts all keys including child scopes like the turtles.
+    ```
     ```ts
     await records.crush().clear()
-      // okay now this wipes out all the turtles
+      // this wipes out all the turtles.
     ```
 
 
@@ -198,12 +202,12 @@ const kv = new Kv()
     for await (const key of kv.keys()) console.log(key)
     for await (const value of kv.values()) console.log(value)
     ```
-- **`count`.** *(accepts scan options)*
+- **`count` the number of entries** in this scope. *(accepts scan options)*
     ```ts
     await kv.count()
       // 123
     ```
-- **`clear` deletes stuff** within this namespace. *(accepts scan options)*
+- **`clear` deletes everything** in this scope. *(accepts scan options)*
     ```ts
     await kv.clear()
     ```

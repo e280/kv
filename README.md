@@ -160,17 +160,27 @@ const kv = new Kv()
 - **entries can be scanned,** by range and limit.
   ```ts
   for await (const entry of kv.entries({
-    start: "alpha",
-    end: "omega",
-    limit: 100,
-  }))
+      start: "alpha",
+      end: "omega",
+      limit: 100,
+    }))
     console.log(entry)
+  ```
+- **`keys` and `values`,** also scannable.
+  ```ts
+  for await (const key of kv.keys()) console.log(key)
+  for await (const value of kv.values()) console.log(value)
+  ```
+- **`count`,** also scannable.
+  ```ts
+  await kv.count()
+    // 123
   ```
 - **`clear` deletes everything,** within this namespace.
   ```ts
   await kv.clear()
   ```
-- **`store` produces a little cubby,** for storing a single value.
+- **`store` produces a little cubby,** for storing a single value. *(it implements `@e280/stz`'s `Cubby` type)*
   ```ts
   const stats = kv.store<{count: number}>("stats")
   ```

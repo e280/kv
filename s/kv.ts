@@ -44,7 +44,11 @@ export class Kv<V = unknown> {
 
 	async commit(ops: Op<V>[]) {
 		await this.#magazine.commit(
-			ops.map(([key, value]) => [key, this.#options.codec.encode(value)])
+			ops.map(([key, value]) => [key, (
+				(value === undefined)
+					? undefined
+					: this.#options.codec.encode(value)
+			)])
 		)
 	}
 

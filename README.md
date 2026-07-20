@@ -92,9 +92,6 @@ const kv = new Kv()
 
     await records.set("123", "bingus")
       // writes to key "records:123"
-
-    await records.clear()
-      // only effects our "records" namespace
     ```
 - **scopes are nestable,** it's turtles all the way down.
     ```ts
@@ -103,14 +100,7 @@ const kv = new Kv()
     await turtles.set("123", "bingus")
       // writes to key "records.turtles:123"
     ```
-- 🍋‍🟩 **commits can be cross-scoped,** don't miss this!
-    ```ts
-    await kv.commit([
-      metadatas.op.set("123", {size: 123, type: "text/plain"}),
-      turtles.op.set("123", "bingus"),
-    ])
-    ```
-- **the parent's operations don't hurt the children.**
+- **the parent's operations don't hurt siblings or children.**
     ```ts
     const records = kv.scope("records")
     const turtles = records.scope("turtles")
@@ -118,20 +108,35 @@ const kv = new Kv()
     await records.clear()
       // deletes "records" values without touching the "turtles" values
     ```
-- **don't forget you can set types,** on both Kv and its scopes.
+- **don't forget you can set strict types,** on both Kv and its scopes.
     ```ts
+    const kv = new Kv<unknown>()
     const metadatas = kv.scope<{size: number}>("metadatas")
+    const turtles = kv.scope("records").scope<string>("turtles")
 
     await metadatas.set("123", {size: 234})
     ```
-- **the root kv is just an unnamed scope,** and works like any other scope.
+- 🍋‍🟩 **commits can be cross-scoped,** don't miss this!
     ```ts
-    await kv.set("123", "bingus")
-      // writes to key ":123"
-      // notice the ":" delimiter at the beginning.
+    await kv.commit([
+      metadatas.op.set("123", {size: 234}), // key "metadatas:123"
+      turtles.op.set("123", "bingus"), // key "records.turtles:123"
+    ])
+    ```
+- **the root kv is just an unnamed scope,** and works like any other scope.
+    > *generally, you should always be using a scoped kv. it's weird to directly use the root scope.*
+    ```ts
+    await kv.set("123", "bingus") // key ":123"
     ```
 - 📣 **don't abuse the `.` divisor and `:` delimiter in scope names.**  
-    kv doesn't escape the scope names, so using those characters could cause trouble.
+    > *kv doesn't escape the scope names, so using those characters could cause trouble.*
+    ```ts
+    kv.scope("records.turtles")
+      //      |
+      // *equivalent*
+      //      |
+    kv.scope("records").scope("turtles")
+    ```
 - **`crush` is black magic,** which allows the parents to hurt their children.
     ```ts
     await records.crush().count()

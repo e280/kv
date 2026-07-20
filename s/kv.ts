@@ -5,7 +5,7 @@ import {Store} from "./store.js"
 import {chunks} from "./utils/chunks.js"
 import {Prefixer} from "./utils/prefixer.js"
 import {MemoryMagazine} from "./magazines/memory.js"
-import {Magazine, Change, Options, Scan} from "./types.js"
+import {Magazine, Change, Options, Scan, Pair} from "./types.js"
 
 export class Kv<V = unknown> {
 	op
@@ -89,7 +89,7 @@ export class Kv<V = unknown> {
 		scan = this.#prefixer.scan(scan)
 
 		for await (const [key, value] of this.#magazine.entries(scan))
-			yield [this.#prefixer.unprefix(key), JSON.parse(value)] as [string, X]
+			yield [this.#prefixer.unprefix(key), JSON.parse(value)] as Pair<X>
 	}
 
 	async* keys(scan: Scan = {}) {

@@ -1,8 +1,11 @@
 
+export type Pair<V> = [key: string, value: V]
+export type Change<V> = [key: string, value: V | undefined]
+
 export type Magazine = {
 	commit(changes: Change<string>[]): Promise<void>
 	getMany(keys: string[]): Promise<(string | undefined)[]>
-	entries(scan?: Scan): AsyncIterable<[key: string, value: string]>
+	entries(scan?: Scan): AsyncIterable<Pair<string>>
 }
 
 export type Scan = {
@@ -10,8 +13,6 @@ export type Scan = {
 	end?: string
 	limit?: number
 }
-
-export type Change<V> = [key: string, value: V | undefined]
 
 export type Options = {
 	scopes: string[]

@@ -13,7 +13,7 @@ import {Kv} from "@e280/kv"
 const kv = new Kv()
 ```
 
-- **bet that kv can get and set.**
+- **get and set.**
     ```ts
     await kv.set("hello", "world")
       // setting undefined is the same as delete
@@ -66,14 +66,6 @@ const kv = new Kv()
     ```
 - **write your own magazine,** you won't believe how easy it is.
     ```ts
-    // this is the Kv magazine interface
-    export type Magazine = {
-	    commit(changes: Change<string>[]): Promise<void>
-	    getMany(keys: string[]): Promise<(string | undefined)[]>
-	    entries(scan?: Scan): AsyncIterable<[key: string, value: string]>
-    }
-    ```
-    ```ts
     import {Magazine, Change, Scan} from "@e280/kv"
 
     // three methods and you're done!
@@ -83,6 +75,7 @@ const kv = new Kv()
       async* entries(scan?: Scan) {/*...*/}
     }
     ```
+    see [magazines/memory.ts](./s/magazines/memory.ts) for inspiration.
 
 
 
@@ -135,7 +128,7 @@ const kv = new Kv()
 
 
 ## 🪇 more kv methods
-- **`delete` deletes a key.**
+- **`delete` a pair by its key.**
   ```ts
   await kv.delete("hello")
   ```

@@ -32,7 +32,7 @@ export class Kv<V = unknown> {
 	}
 
 	/** create a sub kv where all keys inherit a prefix */
-	scope<X extends V = V>(scope: string, delimiter = this.#options.delimiter) {
+	scope<X = unknown>(scope: string, delimiter = this.#options.delimiter) {
 		const scopes = [...this.#options.scopes, scope]
 		return new Kv<X>(this.#magazine, {...this.#options, delimiter, scopes})
 	}

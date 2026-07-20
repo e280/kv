@@ -3,7 +3,7 @@ export type Pair<V> = [key: string, value: V]
 export type Op<V> = [key: string, value: V | undefined]
 
 export type Magazine = {
-	commit(op: Op<string>[]): Promise<void>
+	commit(ops: Op<string>[]): Promise<void>
 	getMany(keys: string[]): Promise<(string | undefined)[]>
 	entries(scan?: Scan): AsyncIterable<Pair<string>>
 }

@@ -9,9 +9,14 @@ export type Magazine = {
 }
 
 export type Scan = {
-	start?: string
-	end?: string
 	limit?: number
+	reverse?: boolean
+
+	/** inclusive */
+	start?: string
+
+	/** exclusive */
+	end?: string
 }
 
 export type Codec = {
@@ -28,7 +33,7 @@ export type Options = {
 
 export type LevelLike = {
 	batch(commands: ({type: "put", key: string, value: string} | {type: "del", key: string})[]): Promise<void>
-	getMany(keys: string[]): Promise<string[]>
-	iterator(o: {gte?: string, lte?: string, limit?: number}): AsyncIterable<[string, string]>
+	getMany(keys: string[]): Promise<(string | undefined)[]>
+	iterator(o: {gte?: string, lt?: string, limit?: number, reverse?: boolean}): AsyncIterable<[string, string]>
 }
 

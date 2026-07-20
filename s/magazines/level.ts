@@ -25,8 +25,9 @@ export class LevelMagazine implements Magazine {
 	async* entries(scan: Scan = {}) {
 		const results = this.#level.iterator({
 			gte: scan.start,
-			lte: scan.end,
+			lt: scan.end,
 			limit: scan.limit,
+			reverse: scan.reverse,
 		})
 
 		for await (const entry of results)

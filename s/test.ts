@@ -84,9 +84,10 @@ await science.run({
 			"start/end": test(async() => {
 				const kv = new Kv()
 				await kv.commit([["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4]])
-				const keys = await collect(kv.keys({start: "record:2", end: "record:3"}))
+				const keys = await collect(kv.keys({start: "record:2", end: "record:4"}))
 				expect(keys.length).is(2)
 				expect(keys[0]).is("record:2")
+				expect(keys[1]).is("record:3")
 			}),
 
 			"limit": test(async() => {
@@ -122,7 +123,7 @@ await science.run({
 			"start/end": test(async() => {
 				const kv = new Kv()
 				await kv.commit([["record:1", 1], ["record:2", 2], ["record:3", 3], ["record:4", 4]])
-				const entries = await collect(kv.entries({start: "record:2", end: "record:3"}))
+				const entries = await collect(kv.entries({start: "record:2", end: "record:4"}))
 				expect(entries.length).is(2)
 				expect(entries[0][0]).is("record:2")
 				expect(entries[0][1]).is(2)

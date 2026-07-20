@@ -34,17 +34,25 @@ export class IdbMagazine implements Magazine {
 		if (scan.limit === 0)
 			return
 
-		const [keys, values] = await this.#tx.readonly((store, wait) =>
-			Promise.all([
-				wait<string[]>(store.getAllKeys(idbRange(scan), scan.limit)),
-				wait<string[]>(store.getAll(idbRange(scan), scan.limit)),
-			])
-		)
+		yield* await this.#tx.readonly(async (store, wait) => {
+			const entries: [string, string][] = []
+			const direction = scan.reverse ? "prev" : "next"
+			const request = store.openCursor(idbRange(scan), direction)
 
-		for (const [index, key] of keys.entries()) {
-			const value = values[index]
-			yield [key, value] as [string, string]
-		}
+			let cursor = await wait<IDBCursorWithValue | null>(request)
+
+			while (cursor) {
+				entries.push([cursor.key as string, cursor.value])
+
+				if (scan.limit !== undefined && entries.length >= scan.limit)
+					break
+
+				cursor.continue()
+				cursor = await wait<IDBCursorWithValue | null>(request)
+			}
+
+			return entries
+		})
 	}
 }
 

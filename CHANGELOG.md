@@ -33,8 +33,11 @@
   - 🟥 `kv.flatten` renamed to `kv.crush`
 - 🟥 kv generic type now defaults to `unknown` (was `any`) -- this means you may need to be more explicit with types in some cases
 - 🟥 remove kv option `chunkSize`
+- 🟥 scan `end` is now EXCLUSIVE, it used to be inclusive -- scans are "half open"
 - 🍏 add kv option `codec` with type `Codec` which defaults to a json codec
 - 🍏 add kv `count` method
+- 🍏 add scan `reverse` option -- we can now scan stuff in reverse
+- 🍏 add kv `Symbol.asyncIterator` alias for `entries`
 
 
 

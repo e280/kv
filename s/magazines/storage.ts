@@ -1,6 +1,6 @@
 
-import {scanMatch} from "../utils/scan-match.js"
 import {Change, Magazine, Scan} from "../types.js"
+import {scanEntries} from "../utils/scan-entries.js"
 
 export class StorageMagazine implements Magazine {
 	#storage
@@ -23,19 +23,7 @@ export class StorageMagazine implements Magazine {
 	}
 
 	async* entries(scan: Scan = {}) {
-		if (scan.limit === 0)
-			return
-
-		let count = 0
-
-		for (const [key, value] of Object.entries(this.#storage)) {
-			if (scanMatch(key, scan)) {
-				yield [key, value] as [string, string]
-				count += 1
-			}
-			if (count >= (scan.limit ?? Infinity))
-				break
-		}
+		yield* scanEntries(scan, Object.entries(this.#storage))
 	}
 }
 

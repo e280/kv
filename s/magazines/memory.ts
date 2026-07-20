@@ -1,6 +1,6 @@
 
-import {scanMatch} from "../utils/scan-match.js"
 import {Change, Magazine, Scan} from "../types.js"
+import {scanEntries} from "../utils/scan-entries.js"
 
 export class MemoryMagazine implements Magazine {
 	#map = new Map<string, string>()
@@ -19,19 +19,7 @@ export class MemoryMagazine implements Magazine {
 	}
 
 	async* entries(scan: Scan = {}) {
-		if (scan.limit === 0)
-			return
-
-		let count = 0
-
-		for (const [key, value] of this.#map.entries()) {
-			if (scanMatch(key, scan)) {
-				yield [key, value] as [string, string]
-				count += 1
-			}
-			if (count >= (scan.limit ?? Infinity))
-				break
-		}
+		yield* scanEntries(scan, [...this.#map.entries()])
 	}
 }
 

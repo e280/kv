@@ -157,26 +157,32 @@ const kv = new Kv()
   for await (const [key, value] of kv.entries())
     console.log(key, value)
   ```
-- **entries can be scanned,** by range and limit.
+  it's aliased to Symbol.asyncIterator, so you can do this:
+  ```ts
+  for await (const [key, value] of kv)
+    console.log(key, value)
+  ```
+  the `entries` method accepts scan options.
   ```ts
   for await (const entry of kv.entries({
-      start: "alpha",
-      end: "omega",
       limit: 100,
+      reverse: false,
+      start: "alpha", // inclusive
+      end: "omega", // exclusive
     }))
     console.log(entry)
   ```
-- **`keys` and `values`,** also scannable.
+- **`keys` and `values`.** *(accepts scan options)*
   ```ts
   for await (const key of kv.keys()) console.log(key)
   for await (const value of kv.values()) console.log(value)
   ```
-- **`count`,** also scannable.
+- **`count`.** *(accepts scan options)*
   ```ts
   await kv.count()
     // 123
   ```
-- **`clear` deletes everything,** within this namespace.
+- **`clear` deletes stuff** within this namespace. *(accepts scan options)*
   ```ts
   await kv.clear()
   ```

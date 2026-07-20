@@ -92,6 +92,10 @@ export class Kv<V = unknown> {
 			yield [this.#prefixer.unprefix(key), this.#options.codec.decode(value)] as Pair<X>
 	}
 
+	[Symbol.asyncIterator]() {
+		return this.entries()
+	}
+
 	async* keys(scan: Scan = {}) {
 		for await (const [key] of this.entries(scan))
 			yield key

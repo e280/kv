@@ -1,7 +1,7 @@
 {
 	"name": "@e280/kv",
 	"version": "0.1.5",
-	"description": "Simple abstract key-value json database",
+	"description": "tiny run-anywhere key-value database",
 	"license": "MIT",
 	"author": "Chase Moskal <chasemoskal@gmail.com>",
 	"type": "module",

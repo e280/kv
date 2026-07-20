@@ -165,6 +165,24 @@ await science.run({
 			expect(await b.get("hello")).is(undefined)
 		}),
 
+		"crushed counts": test(async() => {
+			const kv = new Kv()
+			const alpha = kv.scope("alpha")
+			const bravo = alpha.scope("bravo")
+			await kv.set("1", true)
+			await alpha.set("2", true)
+			await alpha.set("3", true)
+			await bravo.set("4", true)
+			await bravo.set("5", true)
+			await bravo.set("6", true)
+			expect(await kv.count()).is(1)
+			expect(await alpha.count()).is(2)
+			expect(await bravo.count()).is(3)
+			expect(await kv.crush().count()).is(6)
+			expect(await alpha.crush().count()).is(5)
+			expect(await bravo.crush().count()).is(3)
+		}),
+
 		"localized clear": test(async() => {
 			const kv = new Kv()
 			const alpha = kv.scope("alpha")

@@ -102,6 +102,12 @@ export class Kv<V = unknown> {
 			yield value as X
 	}
 
+	async count(scan: Scan = {}) {
+		let count = 0
+		for await (const _ of this.keys(scan)) count++
+		return count
+	}
+
 	async clear(scan: Scan = {}) {
 		let changes: Change<V>[] = []
 

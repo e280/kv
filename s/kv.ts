@@ -104,13 +104,19 @@ export class Kv<V = unknown> {
 	}
 
 	async clear(scan: Scan = {}) {
-		const keys: string[] = []
+		let changes: Change<V>[] = []
 
-		for await (const [key] of this.entries(scan))
-			keys.push(key)
+		for await (const [key] of this.entries(scan)) {
+			changes.push(this.op.delete(key))
 
-		for (const chunk of chunks(1024, keys))
-			await this.commit(chunk.map(key => this.op.delete(key)))
+			if (changes.length >= 1024) {
+				await this.commit(changes)
+				changes = []
+			}
+		}
+
+		if (changes.length)
+			await this.commit(changes)
 	}
 }
 

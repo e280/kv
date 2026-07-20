@@ -37,7 +37,7 @@ const kv = new Kv()
 
 
 ## 🪇 plug in your favorite kv magazine
-- **MemoryMagazine *(default),*** ephemeral in-memory storage (just a js map)
+- **MemoryMagazine *(default),*** ephemeral in-memory storage.
     ```ts
     import {Kv, MemoryMagazine} from "@e280/kv"
 
@@ -51,14 +51,14 @@ const kv = new Kv()
     const level = new Level("./kv")
     const kv = new Kv(new LevelMagazine(level))
     ```
-- **IdbMagazine,** in-browser indexedDB storage
+- **IdbMagazine,** in-browser indexedDB storage.
     ```ts
     import {Kv, IdbMagazine, idbOpen} from "@e280/kv"
 
     const idb = await idbOpen("kv")
     const kv = new Kv(new IdbMagazine(idb))
     ```
-- **StorageMagazine,** in-browser localStorage/sessionStorage
+- **StorageMagazine,** in-browser localStorage/sessionStorage.
     ```ts
     import {Kv, StorageMagazine} from "@e280/kv"
 
@@ -70,7 +70,7 @@ const kv = new Kv()
 
     // three methods and you're done!
     export class MyMagazine implements Magazine {
-      async commit(changes: Change<string[]) {/*...*/}
+      async commit(changes: Change<string>[]) {/*...*/}
       async getMany(keys: string[]) {/*...*/}
       async* entries(scan?: Scan) {/*...*/}
     }
@@ -90,12 +90,6 @@ const kv = new Kv()
 
     await records.clear()
       // only effects our "records" namespace
-    ```
-- **don't forget you can set types,** on both Kv and its scopes.
-    ```ts
-    const metadatas = kv.scope<{size: number, type: string}>("metadatas")
-
-    await metadatas.set("a4d9dbbc", {size: 123, type: "text/plain"})
     ```
 - **scopes are nestable,** it's turtles all the way down.
     ```ts
@@ -118,6 +112,18 @@ const kv = new Kv()
 
     await records.clear()
       // deletes "records" values without touching the "turtles" values
+    ```
+- **don't forget you can set types,** on both Kv and its scopes.
+    ```ts
+    const metadatas = kv.scope<{size: number, type: string}>("metadatas")
+
+    await metadatas.set("a4d9dbbc", {size: 123, type: "text/plain"})
+    ```
+- **the root kv is just an unnamed scope,** and works like any other scope.
+    ```ts
+    await kv.set("123", "bingus")
+      // writes to key ":123"
+      // notice the ":" delimiter at the beginning.
     ```
 - **`crush` is black magic,** which allows the parents to hurt the children.
     ```ts
@@ -164,13 +170,13 @@ const kv = new Kv()
   ```
   the `entries` method accepts scan options.
   ```ts
-  for await (const entry of kv.entries({
+  for await (const [key, value] of kv.entries({
       limit: 100,
       reverse: false,
       start: "alpha", // inclusive
       end: "omega", // exclusive
     }))
-    console.log(entry)
+    console.log(key, value)
   ```
 - **`keys` and `values`.** *(accepts scan options)*
   ```ts

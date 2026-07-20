@@ -1,7 +1,10 @@
 
+![](https://i.imgur.com/SfYyhtx.png)
+
 # 🪇 kv
 
-**kv is a tiny key-value database.** typescript library. node or web. kv can be backed in-memory, leveldb, localstorage, or indexeddb. kv does smart stuff like scoped namespaces and atomic write batches. most of all, kv yearns to stay simple and elegant.
+**kv is a tiny key-value database.**  
+typescript library. node or web. kv can be backed in-memory, leveldb, localstorage, or indexeddb. kv does smart stuff like scoped namespaces and atomic write batches. most of all, kv yearns to stay simple and elegant.
 
 ```bash
 npm install @e280/kv

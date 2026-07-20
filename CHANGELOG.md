@@ -34,6 +34,7 @@
 - 🟥 kv generic type now defaults to `unknown` (was `any`) -- this means you may need to be more explicit with types in some cases
 - 🟥 remove kv option `chunkSize`
 - 🍏 add kv option `codec` with type `Codec` which defaults to a json codec
+- 🍏 add kv `count` method
 
 
 

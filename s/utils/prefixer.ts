@@ -3,12 +3,12 @@ import {Options, Scan} from "../types.js"
 
 export class Prefixer {
 	#prefix: string
+	#end: string | undefined
 
 	constructor(options: Options) {
 		const {scopes, divisor, delimiter} = options
-		this.#prefix = scopes.length > 0
-			? scopes.join(divisor) + delimiter
-			: ""
+		this.#prefix = scopes.join(divisor) + delimiter
+		this.#end = prefixEnd(this.#prefix)
 	}
 
 	prefix = (key: string) => {
@@ -16,15 +16,35 @@ export class Prefixer {
 	}
 
 	unprefix = (fullkey: string) => {
-		const start = this.#prefix.length
-		return fullkey.slice(start)
+		return fullkey.slice(this.#prefix.length)
 	}
 
-	scan = (scan: Scan) => {
-		const {limit} = scan
-		const start = this.#prefix + (scan.start ?? "")
-		const end = this.#prefix + (scan.end ?? "\xFF")
-		return {limit, start, end}
+	scan = (scan: Scan): Scan => {
+		const {start, end, limit, reverse} = scan
+
+		return {
+			start: this.#prefix + (start ?? ""),
+			end: end === undefined
+				? this.#end
+				: this.#prefix + end,
+			limit,
+			reverse,
+		}
 	}
+}
+
+function prefixEnd(prefix: string) {
+	for (let index = prefix.length - 1; index >= 0; index--) {
+		const code = prefix.charCodeAt(index)
+
+		if (code < 0xFFFF) {
+			return (
+				prefix.slice(0, index) +
+				String.fromCharCode(code + 1)
+			)
+		}
+	}
+
+	return undefined
 }
 

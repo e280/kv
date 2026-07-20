@@ -28,8 +28,8 @@
   - 🟥 `kv.gets` renamed to `kv.getMany`
   - 🟥 `kv.require` renamed to `kv.need`
   - 🟥 `kv.requires` renamed to `kv.needMany`
-  - 🟥 `kv.del` renamed to `kv.delete`, and only accepts one key
-  - 🟥 `kv.sets` is gone (use a kv.commit with many kv.op.set calls)
+  - 🟥 `kv.del` renamed to `kv.delete`
+  - 🟥 `kv.sets` renamed to `kv.setMany`
   - 🟥 `kv.flatten` renamed to `kv.crush`
 - 🟥 kv generic type now defaults to `unknown` (was `any`) -- this means you may need to be more explicit with types in some cases
 - 🟥 remove kv option `chunkSize`
@@ -39,6 +39,7 @@
   - 🟥 the change is that all root-level kv keys are actually (opaquely) prefixed with the delimiter (default `:`) -- that means if you inspect your magazine directly, you'll see root level has keys like `:123`
   - 🟥 eg, you used to be able to call `await kv.clear()` to wipe ALL data even in every scope -- this no longer works, you can only clear what's on your current scope
   - 🟥 if you actually wanna nuke everything on all child scopes, you do `await kv.crush().clear()` -- crush lets you "see" all child scopes
+- 🟥 removed `collect` helper (its now in `@e280/stz`)
 - 🍏 add kv option `codec` with type `Codec` which defaults to a json codec
 - 🍏 add kv `count` method
 - 🍏 add scan `reverse` option -- we can now scan stuff in reverse

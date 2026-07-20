@@ -4,7 +4,7 @@
 # 🪇 kv
 
 **kv is a tiny key-value database.**  
-typescript library. node or web. kv can be backed in-memory, leveldb, localstorage, or indexeddb. kv does smart stuff like scoped namespaces and atomic write batches. most of all, kv yearns to stay simple and elegant.
+typescript library. node or web. kv can be backed in-memory, leveldb, localstorage, or indexeddb. kv does smart stuff like scoped namespaces and atomic write batches.
 
 ```bash
 npm install @e280/kv
@@ -16,7 +16,7 @@ import {Kv} from "@e280/kv"
 const kv = new Kv()
 ```
 
-- **get and set.**
+- **set and get.**
     ```ts
     await kv.set("hello", "world")
       // setting undefined is the same as delete
@@ -40,13 +40,14 @@ const kv = new Kv()
 
 
 ## 🪇 plug in your favorite kv magazine
-- **MemoryMagazine *(default),*** ephemeral in-memory storage.
+- **MemoryMagazine *(default),*** ephemeral in-memory storage.  
+    > *memory magazine has bad performance characteristics and is meant for testing.*
     ```ts
     import {Kv, MemoryMagazine} from "@e280/kv"
 
     const kv = new Kv(new MemoryMagazine())
     ```
-- **LevelMagazine,** nodejs on-disk [leveldb](https://github.com/google/leveldb)
+- **LevelMagazine,** nodejs on-disk [leveldb](https://github.com/google/leveldb).
     ```ts
     import {Level} from "level"
     import {Kv, LevelMagazine} from "@e280/kv"
@@ -62,6 +63,7 @@ const kv = new Kv()
     const kv = new Kv(new IdbMagazine(idb))
     ```
 - **StorageMagazine,** in-browser localStorage/sessionStorage.
+    > *storage magazine has bad performance characteristics and is meant for small amounts of data.*
     ```ts
     import {Kv, StorageMagazine} from "@e280/kv"
 

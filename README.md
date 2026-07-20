@@ -1,7 +1,7 @@
 
 # 🪇 kv
 
-**kv is a tiny run-anywhere key-value database.** typescript library. node or web. kv can be backed in-memory, leveldb, localStorage, or indexedDB. kv does smart stuff like scoped namespaces and atomic write batches. most of all, kv yearns to stay simple and elegant.
+**kv is a tiny key-value database.** typescript library. node or web. kv can be backed in-memory, leveldb, localStorage, or indexedDB. kv does smart stuff like scoped namespaces and atomic write batches. most of all, kv yearns to stay simple and elegant.
 
 ```bash
 npm install @e280/kv

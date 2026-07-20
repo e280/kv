@@ -1,10 +1,10 @@
 
-import {Tx} from "./tx.js"
+import {Op} from "./op.js"
 
-export class StoreTx<V = any> {
+export class StoreOp<V = unknown> {
 	tx
 
-	constructor(tx: Tx<V>, public key: string) {
+	constructor(tx: Op<V>, public key: string) {
 		this.tx = tx
 	}
 

@@ -1,6 +1,6 @@
 
 import {got} from "@e280/stz"
-import {Tx} from "./utils/tx.js"
+import {Op} from "./utils/op.js"
 import {Store} from "./store.js"
 import {chunks} from "./utils/chunks.js"
 import {Prefixer} from "./utils/prefixer.js"
@@ -8,7 +8,7 @@ import {MemoryMagazine} from "./magazines/memory.js"
 import {Magazine, Change, Options, Scan} from "./types.js"
 
 export class Kv<V = unknown> {
-	tx
+	op
 	#magazine
 	#prefixer
 	#options: Options
@@ -23,7 +23,7 @@ export class Kv<V = unknown> {
 			...options,
 		}
 		this.#prefixer = new Prefixer(this.#options)
-		this.tx = new Tx<V>(this.#prefixer)
+		this.op = new Op<V>(this.#prefixer)
 	}
 
 	/** create a store which can set or get on a single key */
@@ -49,11 +49,11 @@ export class Kv<V = unknown> {
 	}
 
 	async set<X extends V = V>(key: string, value: X | undefined) {
-		return this.commit([this.tx.set(key, value)])
+		return this.commit([this.op.set(key, value)])
 	}
 
 	async delete(key: string) {
-		return this.commit([this.tx.delete(key)])
+		return this.commit([this.op.delete(key)])
 	}
 
 	async getMany<X extends V = V>(keys: string[]) {
@@ -109,7 +109,7 @@ export class Kv<V = unknown> {
 			keys.push(key)
 
 		for (const chunk of chunks(this.#options.chunkSize, keys))
-			await this.commit(chunk.map(key => this.tx.delete(key)))
+			await this.commit(chunk.map(key => this.op.delete(key)))
 	}
 }
 

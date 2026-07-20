@@ -1,12 +1,12 @@
 
 import {Kv} from "./kv.js"
-import {StoreTx} from "./utils/store-tx.js"
+import {StoreOp} from "./utils/store-op.js"
 
-export class Store<V = any> {
+export class Store<V = unknown> {
 	tx
 
 	constructor(public kv: Kv, public key: string) {
-		this.tx = new StoreTx(kv.tx, key)
+		this.tx = new StoreOp(kv.op, key)
 	}
 
 	async set(value: V | undefined) {

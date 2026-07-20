@@ -111,7 +111,7 @@ const kv = new Kv()
     await turtles.set("123", "bingus")
       // writes to key "records.turtles:123"
     ```
-- 🧙‍♂️ **commits can be cross-scoped,** don't miss this!
+- 🍋‍🟩 **commits can be cross-scoped,** don't miss this!
     ```ts
     await kv.commit([
       metadatas.op.set("123", {size: 123, type: "text/plain"}),

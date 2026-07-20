@@ -125,6 +125,8 @@ const kv = new Kv()
       // writes to key ":123"
       // notice the ":" delimiter at the beginning.
     ```
+- 📣 **don't abuse the `.` divisor and `:` delimiter in scope names.**  
+    kv doesn't escape the scope names, so using those characters could cause trouble.
 - **`crush` is black magic,** which allows the parents to hurt the children.
     ```ts
     await records.crush().clear()

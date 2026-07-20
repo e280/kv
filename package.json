@@ -1,6 +1,6 @@
 {
 	"name": "@e280/kv",
-	"version": "0.2.0-1",
+	"version": "0.2.0-2",
 	"description": "tiny run-anywhere key-value database",
 	"license": "MIT",
 	"author": "Chase Moskal <chasemoskal@gmail.com>",

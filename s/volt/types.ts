@@ -1,7 +1,7 @@
 
 export type Magazine = {
-	write(changes: Change<string>[]): Promise<void>
-	get(keys: string[]): Promise<(string | undefined)[]>
+	commit(changes: Change<string>[]): Promise<void>
+	getMany(keys: string[]): Promise<(string | undefined)[]>
 	entries(scan?: Scan): AsyncIterable<[key: string, value: string]>
 }
 

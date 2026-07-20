@@ -1,8 +1,10 @@
 
+import {got} from "@e280/stz"
 import {Tx} from "./utils/tx.js"
 import {Store} from "./store.js"
 import {chunks} from "./utils/chunks.js"
 import {Prefixer} from "./utils/prefixer.js"
+import {MemoryMagazine} from "./magazines/memory.js"
 import {Magazine, Change, Options, Scan} from "./types.js"
 
 export class Kv<V = unknown> {
@@ -11,7 +13,7 @@ export class Kv<V = unknown> {
 	#prefixer
 	#options: Options
 
-	constructor(magazine: Magazine, options: Partial<Options> = {}) {
+	constructor(magazine: Magazine = new MemoryMagazine(), options: Partial<Options> = {}) {
 		this.#magazine = magazine
 		this.#options = {
 			scopes: [],
@@ -40,23 +42,23 @@ export class Kv<V = unknown> {
 		return new Kv<V>(this.#magazine, {...this.#options, delimiter: ""})
 	}
 
-	async write(changes: Change<V>[]) {
-		await this.#magazine.write(
+	async commit(changes: Change<V>[]) {
+		await this.#magazine.commit(
 			changes.map(([key, value]) => [key, JSON.stringify(value)])
 		)
 	}
 
-	async set<X extends V = V>(key: string, value: X) {
-		return this.write([this.tx.set(key, value)])
+	async set<X extends V = V>(key: string, value: X | undefined) {
+		return this.commit([this.tx.set(key, value)])
 	}
 
 	async delete(key: string) {
-		return this.write([this.tx.delete(key)])
+		return this.commit([this.tx.delete(key)])
 	}
 
 	async getMany<X extends V = V>(keys: string[]) {
 		keys = keys.map(key => this.#prefixer.prefix(key))
-		return (await this.#magazine.get(keys)).map(value =>
+		return (await this.#magazine.getMany(keys)).map(value =>
 			(value === undefined)
 				? undefined
 				: JSON.parse(value) as X
@@ -69,14 +71,35 @@ export class Kv<V = unknown> {
 	}
 
 	async has(key: string) {
-		return this.get(key) !== undefined
+		return (await this.get(key)) !== undefined
 	}
 
-	async *entries<X extends V = V>(scan: Scan = {}) {
+	async need<X extends V = V>(key: string) {
+		return got(await this.get<X>(key), `key not found "${key}"`)
+	}
+
+	async needMany<X extends V = V>(keys: string[]) {
+		const values = await this.getMany<X>(keys)
+		for (const [index, key] of keys.entries())
+			got(values[index], `key not found "${key}"`)
+		return values as X[]
+	}
+
+	async* entries<X extends V = V>(scan: Scan = {}) {
 		scan = this.#prefixer.scan(scan)
 
 		for await (const [key, value] of this.#magazine.entries(scan))
 			yield [this.#prefixer.unprefix(key), JSON.parse(value)] as [string, X]
+	}
+
+	async* keys(scan: Scan = {}) {
+		for await (const [key] of this.entries(scan))
+			yield key
+	}
+
+	async* values<X extends V = V>(scan: Scan = {}) {
+		for await (const [, value] of this.entries(scan))
+			yield value as X
 	}
 
 	async clear(scan: Scan = {}) {
@@ -86,7 +109,7 @@ export class Kv<V = unknown> {
 			keys.push(key)
 
 		for (const chunk of chunks(this.#options.chunkSize, keys))
-			await this.write(chunk.map(key => this.tx.delete(key)))
+			await this.commit(chunk.map(key => this.tx.delete(key)))
 	}
 }
 

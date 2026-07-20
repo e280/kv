@@ -17,7 +17,7 @@
 	"scripts": {
 		"build": "run-s _clean _tsc _links",
 		"count": "find s -path '*/_archive' -prune -o -name '*.ts' -exec wc -l {} +",
-		"test": "node x/kv.test.js",
+		"test": "node x/volt/test.js",
 		"test-debug": "node inspect x/kv.test.js",
 		"start": "run-p _tscw _testw",
 		"_clean": "rm -rf x && mkdir x",

@@ -2,20 +2,24 @@
 import {scanMatch} from "../utils/scan-match.js"
 import {Change, Magazine, Scan} from "../types.js"
 
-export class MemoryMagazine implements Magazine {
-	#map = new Map<string, string>()
+export class StorageMagazine implements Magazine {
+	#storage
+
+	constructor(storage: Storage = window.localStorage) {
+		this.#storage = storage
+	}
 
 	async commit(changes: Change<string>[]) {
 		for (const [key, value] of changes) {
 			if (value === undefined)
-				this.#map.delete(key)
+				this.#storage.removeItem(key)
 			else
-				this.#map.set(key, value)
+				this.#storage.setItem(key, value)
 		}
 	}
 
 	async getMany(keys: string[]) {
-		return keys.map(key => this.#map.get(key))
+		return keys.map(key => (this.#storage.getItem(key) ?? undefined))
 	}
 
 	async* entries(scan: Scan = {}) {
@@ -24,7 +28,7 @@ export class MemoryMagazine implements Magazine {
 
 		let count = 0
 
-		for (const [key, value] of this.#map.entries()) {
+		for (const [key, value] of Object.entries(this.#storage)) {
 			if (scanMatch(key, scan)) {
 				yield [key, value] as [string, string]
 				count += 1

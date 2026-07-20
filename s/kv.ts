@@ -1,131 +1,29 @@
 
-import {Data} from "./parts/data.js"
-import {Store} from "./parts/store.js"
-import {Driver} from "./parts/driver.js"
-import {Writer} from "./parts/writer.js"
-import {chunks} from "./parts/chunks.js"
-import {collect} from "./parts/collect.js"
-import {MemDriver} from "./drivers/mem.js"
-import {Prefixer} from "./parts/prefixer.js"
-import {Maker, Options, Scan, Write} from "./parts/types.js"
+import {got} from "@e280/stz"
+import {Op} from "./utils/op.js"
+import {Store} from "./store.js"
+import {chunks} from "./utils/chunks.js"
+import {Prefixer} from "./utils/prefixer.js"
+import {MemoryMagazine} from "./magazines/memory.js"
+import {Magazine, Change, Options, Scan} from "./types.js"
 
-export class Kv<V = any> {
-	static collect = collect
-
-	write: Writer<V>
+export class Kv<V = unknown> {
+	op
+	#magazine
+	#prefixer
 	#options: Options
-	#prefixer: Prefixer
 
-	constructor(public driver: Driver = new MemDriver(), options: Partial<Options> = {}) {
+	constructor(magazine: Magazine = new MemoryMagazine(), options: Partial<Options> = {}) {
+		this.#magazine = magazine
 		this.#options = {
 			scopes: [],
 			divisor: ".",
 			delimiter: ":",
-			chunkSize: 10_000,
+			chunkSize: 1024,
 			...options,
 		}
 		this.#prefixer = new Prefixer(this.#options)
-		this.write = new Writer(this.#prefixer)
-	}
-
-	async gets<X extends V = V>(...keys: string[]) {
-		const strings = await this.driver.gets(...keys.map(this.#prefixer.prefix))
-		return (strings.map(string => string === undefined
-			? string
-			: Data.parse<V>(string))
-		) as (X | undefined)[]
-	}
-
-	async get<X extends V = V>(key: string) {
-		const [value] = await this.gets(key)
-		return value as X | undefined
-	}
-
-	async requires<X extends V = V>(...keys: string[]) {
-		const values = await this.gets<X>(...keys)
-		for (const value of values)
-			if (value === undefined)
-				throw new Error("required key not found")
-		return values as X[]
-	}
-
-	async require<X extends V = V>(key: string) {
-		const [value] = await this.requires(key)
-		return value as X
-	}
-
-	async hasKeys(...keys: string[]) {
-		return this.driver.hasKeys(...keys.map(this.#prefixer.prefix))
-	}
-
-	async has(key: string) {
-		const [value] = await this.hasKeys(key)
-		return value
-	}
-
-	async *keys(scan: Scan = {}) {
-		for await (const key of this.driver.keys(this.#prefixer.scan(scan)))
-			yield this.#prefixer.unprefix(key)
-	}
-
-	async clear(scan: Scan = {}) {
-		const keys: string[] = []
-		for await (const key of this.keys(scan))
-			keys.push(key)
-		for (const chunk of chunks(this.#options.chunkSize, keys))
-			await this.del(...chunk)
-	}
-
-	async *entries<X extends V = V>(scan: Scan = {}) {
-		for await (const [key, value] of this.driver.entries(this.#prefixer.scan(scan)))
-			yield [this.#prefixer.unprefix(key), Data.parse<V>(value)] as [string, X]
-	}
-
-	async *values<X extends V = V>(scan?: Scan) {
-		for await (const [,value] of this.entries(scan))
-			yield value as X
-	}
-
-	async transaction(fn: (write: Writer<V>) => Write[][]) {
-		const writes = fn(this.write).flat()
-		return this.driver.transaction(...writes)
-	}
-
-	async set<X extends V = V>(key: string, value: X | undefined) {
-		return this.transaction(w => [w.set(key, value)])
-	}
-
-	async sets<X extends V = V>(...entries: [string, X | undefined][]) {
-		return this.transaction(w => [w.sets(...entries)])
-	}
-
-	async del(...keys: string[]) {
-		return this.transaction(w => [w.del(...keys)])
-	}
-
-	async guarantee<X extends V = V>(key: string, make: Maker<X>) {
-		let value: X | undefined = await this.get(key)
-		if (value === undefined) {
-			value = await make()
-			await this.transaction(w => [w.set(key, value!)])
-		}
-		return value
-	}
-
-	/** helper for performing schema version migrations */
-	async versionMigration(
-			key: string,
-			latest: number,
-			fn: (version: number) => Promise<void>,
-		) {
-		const kv = this as Kv<any>
-		let version: number | undefined = (await kv.get<number>(key)) ?? 0
-		if (typeof version !== "number")
-			version = 0
-		if (version === latest)
-			return
-		await fn(version)
-		await kv.set(key, latest)
+		this.op = new Op<V>(this.#prefixer)
 	}
 
 	/** create a store which can set or get on a single key */
@@ -133,21 +31,85 @@ export class Kv<V = any> {
 		return new Store<X>(this, key)
 	}
 
-	/** prefix all keys with a non-listable namespace */
-	scope<X extends V = V>(scope: string, delimiter = this.#options.delimiter) {
-		return new Kv<X>(this.driver, {
-			...this.#options,
-			delimiter,
-			scopes: [...this.#options.scopes, scope],
-		})
+	/** create a sub kv where all keys inherit a prefix */
+	scope<X = unknown>(scope: string, delimiter = this.#options.delimiter) {
+		const scopes = [...this.#options.scopes, scope]
+		return new Kv<X>(this.#magazine, {...this.#options, delimiter, scopes})
 	}
 
-	/** create a new Kv with delimiter set to "", thus counting sub-namespaces as accesible entries */
-	flatten() {
-		return new Kv<V>(this.driver, {
-			...this.#options,
-			delimiter: "",
-		})
+	/** no delimiter means all sub namespaces are accessible */
+	crush() {
+		return new Kv<V>(this.#magazine, {...this.#options, delimiter: ""})
+	}
+
+	async commit(changes: Change<V>[]) {
+		await this.#magazine.commit(
+			changes.map(([key, value]) => [key, JSON.stringify(value)])
+		)
+	}
+
+	async set<X extends V = V>(key: string, value: X | undefined) {
+		return this.commit([this.op.set(key, value)])
+	}
+
+	async delete(key: string) {
+		return this.commit([this.op.delete(key)])
+	}
+
+	async getMany<X extends V = V>(keys: string[]) {
+		keys = keys.map(key => this.#prefixer.prefix(key))
+		return (await this.#magazine.getMany(keys)).map(value =>
+			(value === undefined)
+				? undefined
+				: JSON.parse(value) as X
+		)
+	}
+
+	async get<X extends V = V>(key: string) {
+		const [value] = await this.getMany<X>([key])
+		return value
+	}
+
+	async has(key: string) {
+		return (await this.get(key)) !== undefined
+	}
+
+	async need<X extends V = V>(key: string) {
+		return got(await this.get<X>(key), `key not found "${key}"`)
+	}
+
+	async needMany<X extends V = V>(keys: string[]) {
+		const values = await this.getMany<X>(keys)
+		for (const [index, key] of keys.entries())
+			got(values[index], `key not found "${key}"`)
+		return values as X[]
+	}
+
+	async* entries<X extends V = V>(scan: Scan = {}) {
+		scan = this.#prefixer.scan(scan)
+
+		for await (const [key, value] of this.#magazine.entries(scan))
+			yield [this.#prefixer.unprefix(key), JSON.parse(value)] as [string, X]
+	}
+
+	async* keys(scan: Scan = {}) {
+		for await (const [key] of this.entries(scan))
+			yield key
+	}
+
+	async* values<X extends V = V>(scan: Scan = {}) {
+		for await (const [, value] of this.entries(scan))
+			yield value as X
+	}
+
+	async clear(scan: Scan = {}) {
+		const keys: string[] = []
+
+		for await (const [key] of this.entries(scan))
+			keys.push(key)
+
+		for (const chunk of chunks(this.#options.chunkSize, keys))
+			await this.commit(chunk.map(key => this.op.delete(key)))
 	}
 }
 

@@ -11,24 +11,15 @@
 		"s"
 	],
 	"exports": {
-		".": "./x/index.js",
-		"./level": "./x/drivers/level.js"
+		".": "./x/index.js"
 	},
 	"scripts": {
-		"build": "run-s _clean _tsc _links",
-		"count": "find s -path '*/_archive' -prune -o -name '*.ts' -exec wc -l {} +",
-		"test": "node x/volt/test.js",
-		"test-debug": "node inspect x/kv.test.js",
-		"start": "run-p _tscw _testw",
-		"_clean": "rm -rf x && mkdir x",
-		"_links": "ln -s \"$(realpath node_modules)\" x/node_modules",
-		"_tsc": "tsc",
-		"_tscw": "tsc -w",
-		"_testw": "node --watch x/kv.test.js"
+		"build": "rm -rf x && mkdir x && tsc",
+		"test": "node x/test.js",
+		"count": "find s -path '*/_archive' -prune -o -name '*.ts' -exec wc -l {} +"
 	},
 	"dependencies": {
-		"@e280/stz": "^0.3.5",
-		"level": "^10.0.0"
+		"@e280/stz": "^0.3.5"
 	},
 	"devDependencies": {
 		"@e280/science": "^0.1.11",
@@ -36,15 +27,19 @@
 		"npm-run-all": "^4.1.5",
 		"typescript": "^7.0.2"
 	},
-	"allowScripts": {
-		"classic-level@3.0.0": true
-	},
 	"keywords": [
 		"kv",
 		"key-value",
+		"database",
+		"storage",
+		"typescript",
 		"json",
-		"json-database",
-		"orm"
+		"indexeddb",
+		"localstorage",
+		"leveldb",
+		"in-memory",
+		"browser",
+		"nodejs"
 	],
 	"homepage": "https://github.com/e280/kv#readme",
 	"repository": {

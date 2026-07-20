@@ -4,9 +4,38 @@
 - 🔶 deprecation or possible breaking change
 - 🍏 harmless addition, fix, or enhancement
 
+
+
 <br/>
 
+## v0.2
 
+### v0.2.0
+- 🟥 total rewrite!
+- 🟥 `Driver` replaced by `Magazine`
+  - 🟥 Magazine is a lot simpler than Driver, it only has three methods
+  - 🟥 `MemDriver` replaced by `MemoryMagazine`
+  - 🟥 `LevelDriver` replaced by `LevelMagazine`
+  - 🟥 `StorageDriver` replaced by `StorageMagazine`
+  - 🍏 new `IdbMagazine`
+- 🟥 removed dependency `level`, now we just use our own in-house `LevelLike` type which should be leveldb compatible
+- 🟥 `kv.transaction` replaced by `kv.commit`
+  - 🟥 syntax for this feature has changed a little (see readme)
+  - 🟥 `kv.write` replaced by `kv.op`
+  - 🟥 `Writer` class replaced by `Op` class
+  - 🟥 `Write` type replaced by `Change` type
+- 🟥 kv method changes
+  - 🟥 `kv.gets` renamed to `kv.getMany`
+  - 🟥 `kv.require` renamed to `kv.need`
+  - 🟥 `kv.requires` renamed to `kv.needMany`
+  - 🟥 `kv.del` renamed to `kv.delete`, and only accepts one key
+  - 🟥 `kv.sets` is gone (use a kv.commit with many kv.op.set calls)
+  - 🟥 `kv.flatten` renamed to `kv.crush`
+- 🟥 kv generic type now defaults to `unknown` (was `any`) -- this means you may need to be more explicit with types in some cases
+
+
+
+<br/>
 
 ## v0.1
 

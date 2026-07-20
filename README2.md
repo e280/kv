@@ -16,6 +16,7 @@ const kv = new Kv()
 - **bet that kv can get and set.**
     ```ts
     await kv.set("hello", "world")
+      // setting undefined is the same as delete
     ```
     ```ts
     await kv.get("hello")
@@ -63,11 +64,30 @@ const kv = new Kv()
 
     const kv = new Kv(new StorageMagazine(localStorage))
     ```
+- **write your own magazine,** you won't believe how easy it is.
+    ```ts
+    // this is the Kv magazine interface
+    export type Magazine = {
+	    commit(changes: Change<string>[]): Promise<void>
+	    getMany(keys: string[]): Promise<(string | undefined)[]>
+	    entries(scan?: Scan): AsyncIterable<[key: string, value: string]>
+    }
+    ```
+    ```ts
+    import {Magazine, Change, Scan} from "@e280/kv"
+
+    // three methods and you're done!
+    export class MyMagazine implements Magazine {
+      async commit(changes: Change<string[]) {/*...*/}
+      async getMany(keys: string[]) {/*...*/}
+      async* entries(scan?: Scan) {/*...*/}
+    }
+    ```
 
 
 
 ## 🪇 kv scopes
-- **create scoped namespaces.**
+- **`scope` creates a namespace.**
     ```ts
     const records = kv.scope("records")
       // creates a Kv instance for this scope
@@ -78,12 +98,25 @@ const kv = new Kv()
     await records.clear()
       // only effects our "records" namespace
     ```
+- **don't forget you can set types,** on both Kv and its scopes.
+    ```ts
+    const metadatas = kv.scope<{size: number, type: string}>("metadatas")
+
+    await metadatas.set("a4d9dbbc", {size: 123, type: "text/plain"})
+    ```
 - **scopes are nestable,** it's turtles all the way down.
     ```ts
     const turtles = kv.scope("records").scope("turtles")
 
     await turtles.set("123", "bingus")
       // writes to key "records.turtles:123"
+    ```
+- 🧙‍♂️ **commits can be cross-scoped,** don't miss this!
+    ```ts
+    await kv.commit([
+      metadatas.op.set("123", {size: 123, type: "text/plain"}),
+      turtles.op.set("123", "bingus"),
+    ])
     ```
 - **the parent's operations don't hurt the children.**
     ```ts

@@ -197,6 +197,16 @@ const kv = new Kv()
       }))
       console.log(key, value)
     ```
+    💡 you can use `collect` helper from `@e280/stz` to get entries/keys/values as an array:
+    ```ts
+    import {collect} from "@e280/stz"
+
+    const entries = await collect(kv)
+      // [["123", "alpha"], ["234", "bravo"]]
+
+    const keys = await collect(kv.keys())
+      // ["123", "234"]
+    ```
 - **`keys` and `values`.** *(accepts scan options)*
     ```ts
     for await (const key of kv.keys()) console.log(key)

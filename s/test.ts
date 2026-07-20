@@ -129,6 +129,19 @@ await science.run({
 			expect(await kv.crush().get("a.b:hello")).is(123)
 		}),
 
+		"iterations": test(async() => {
+			const kv = new Kv()
+			const alpha = kv.scope("alpha")
+			const bravo = alpha.scope("bravo")
+			await alpha.set("1", true)
+			await bravo.set("2", true)
+			expect(await alpha.count()).is(1)
+			expect(await bravo.count()).is(1)
+			expect((await collect(kv)).length).is(0)
+			expect((await collect(alpha)).length).is(1)
+			expect((await collect(bravo)).length).is(1)
+		}),
+
 		"empty string still creates empty segments": test(async() => {
 			const kv = new Kv()
 			const sub1 = kv.scope("")
@@ -150,14 +163,6 @@ await science.run({
 			expect(await b.get("hello")).is(123)
 			await aFlat.clear()
 			expect(await b.get("hello")).is(undefined)
-		}),
-
-		"sub iterate keys": test(async() => {
-			const kv = new Kv()
-			const subsub = kv.scope("a").scope("b")
-			await subsub.set("123", true)
-			const [key] = await collect(subsub.keys())
-			expect(key).is("123")
 		}),
 
 		"localized clear": test(async() => {

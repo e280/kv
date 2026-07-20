@@ -29,11 +29,11 @@ const kv = new Kv()
     ```ts
     await kv.set("hello", {alpha: 123, bravo: ["bingus"]})
     ```
-- **commit batches of changes, atomically.**
+- **commit batches of ops, atomically.**
     ```ts
     await kv.commit([
-      kv.x.set("hello", "world"),
-      kv.x.delete("bingus"),
+      kv.op.set("hello", "world"),
+      kv.op.delete("bingus"),
     ])
     ```
 
@@ -69,11 +69,11 @@ const kv = new Kv()
     ```
 - **write your own magazine,** you won't believe how easy it is.
     ```ts
-    import {Magazine, Change, Scan} from "@e280/kv"
+    import {Magazine, Op, Scan} from "@e280/kv"
 
     // three methods and you're done!
     export class MyMagazine implements Magazine {
-      async commit(changes: Change<string>[]) {/*...*/}
+      async commit(ops: Op<string>[]) {/*...*/}
       async getMany(keys: string[]) {/*...*/}
       async* entries(scan?: Scan) {/*...*/}
     }
@@ -104,8 +104,8 @@ const kv = new Kv()
 - 🍋‍🟩 **commits can be cross-scoped,** don't miss this!
     ```ts
     await kv.commit([
-      metadatas.x.set("123", {size: 123, type: "text/plain"}),
-      turtles.x.set("123", "bingus"),
+      metadatas.op.set("123", {size: 123, type: "text/plain"}),
+      turtles.op.set("123", "bingus"),
     ])
     ```
 - **the parent's operations don't hurt the children.**
@@ -118,9 +118,9 @@ const kv = new Kv()
     ```
 - **don't forget you can set types,** on both Kv and its scopes.
     ```ts
-    const metadatas = kv.scope<{size: number, type: string}>("metadatas")
+    const metadatas = kv.scope<{size: number}>("metadatas")
 
-    await metadatas.set("a4d9dbbc", {size: 123, type: "text/plain"})
+    await metadatas.set("123", {size: 234})
     ```
 - **the root kv is just an unnamed scope,** and works like any other scope.
     ```ts
@@ -161,7 +161,7 @@ const kv = new Kv()
 - **`needMany` retrieves many values,** or throws when any key doesn't exist.
     ```ts
     const values = await kv.needMany(["alpha", "bravo"])
-      // [123, 456] (or throws error)
+      // [123, 234] (or throws error)
     ```
 - **`entries` loops over key-value pairs.**
     ```ts

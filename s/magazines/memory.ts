@@ -1,12 +1,12 @@
 
-import {Change, Magazine, Scan} from "../types.js"
+import {Op, Magazine, Scan} from "../types.js"
 import {scanEntries} from "../utils/scan-entries.js"
 
 export class MemoryMagazine implements Magazine {
 	#map = new Map<string, string>()
 
-	async commit(changes: Change<string>[]) {
-		for (const [key, value] of changes) {
+	async commit(ops: Op<string>[]) {
+		for (const [key, value] of ops) {
 			if (value === undefined)
 				this.#map.delete(key)
 			else

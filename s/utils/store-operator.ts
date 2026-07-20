@@ -1,11 +1,11 @@
 
-import {Changer} from "./changer.js"
+import {Operator} from "./operator.js"
 
-export class StoreChanger<V = unknown> {
+export class StoreOperator<V = unknown> {
 	#key
 	#parent
 
-	constructor(key: string, parent: Changer<V>) {
+	constructor(key: string, parent: Operator<V>) {
 		this.#key = key
 		this.#parent = parent
 	}

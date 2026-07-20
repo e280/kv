@@ -1,5 +1,5 @@
 
-import {Change, Magazine, Scan} from "../types.js"
+import {Op, Magazine, Scan} from "../types.js"
 import {scanEntries} from "../utils/scan-entries.js"
 
 export class StorageMagazine implements Magazine {
@@ -9,8 +9,8 @@ export class StorageMagazine implements Magazine {
 		this.#storage = storage
 	}
 
-	async commit(changes: Change<string>[]) {
-		for (const [key, value] of changes) {
+	async commit(ops: Op<string>[]) {
+		for (const [key, value] of ops) {
 			if (value === undefined)
 				this.#storage.removeItem(key)
 			else

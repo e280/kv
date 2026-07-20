@@ -1,7 +1,7 @@
 
 import {Idb} from "../utils/idb/types.js"
 import {idbRange} from "../utils/idb/range.js"
-import {Change, Magazine, Scan} from "../types.js"
+import {Op, Magazine, Scan} from "../types.js"
 import {idbTransactions} from "../utils/idb/transactions.js"
 
 export class IdbMagazine implements Magazine {
@@ -11,9 +11,9 @@ export class IdbMagazine implements Magazine {
 		this.#tx = idbTransactions(idb)
 	}
 
-	async commit(changes: Change<string>[]) {
+	async commit(ops: Op<string>[]) {
 		return this.#tx.readwrite(async store => {
-			for (const [key, value] of changes) {
+			for (const [key, value] of ops) {
 				if (value === undefined)
 					store.delete(key)
 				else

@@ -1,5 +1,5 @@
 
-import {Change, LevelLike, Magazine, Scan} from "../types.js"
+import {Op, LevelLike, Magazine, Scan} from "../types.js"
 
 export class LevelMagazine implements Magazine {
 	#level
@@ -8,9 +8,9 @@ export class LevelMagazine implements Magazine {
 		this.#level = level
 	}
 
-	async commit(changes: Change<string>[]) {
+	async commit(ops: Op<string>[]) {
 		return this.#level.batch(
-			changes.map(([key, value]) =>
+			ops.map(([key, value]) =>
 				(value === undefined)
 					? {type: "del", key}
 					: {type: "put", key, value}

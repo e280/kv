@@ -47,8 +47,8 @@ await science.run({
 			expect(await kv.get("alpha")).is("ok")
 			expect(await kv.get("bravo")).is("ok")
 			await kv.commit([
-				kv.x.delete("alpha"),
-				kv.x.delete("bravo"),
+				kv.op.delete("alpha"),
+				kv.op.delete("bravo"),
 			])
 			expect(await kv.get("alpha")).is(undefined)
 			expect(await kv.get("bravo")).is(undefined)
@@ -75,13 +75,13 @@ await science.run({
 	"iterate": suite({
 		"basic": test(async() => {
 			const kv = new Kv()
-			await kv.commit([kv.x.set("1", 1), kv.x.set("2", 2), kv.x.set("3", 3), kv.x.set("4", 4)])
+			await kv.commit([kv.op.set("1", 1), kv.op.set("2", 2), kv.op.set("3", 3), kv.op.set("4", 4)])
 			expect((await collect(kv)).length).is(4)
 		}),
 
 		"start/end": test(async() => {
 			const kv = new Kv()
-			await kv.commit([kv.x.set("1", 1), kv.x.set("2", 2), kv.x.set("3", 3), kv.x.set("4", 4)])
+			await kv.commit([kv.op.set("1", 1), kv.op.set("2", 2), kv.op.set("3", 3), kv.op.set("4", 4)])
 			const keys = await collect(kv.keys({start: "2", end: "4"}))
 			expect(keys.length).is(2)
 			expect(keys[0]).is("2")
@@ -90,7 +90,7 @@ await science.run({
 
 		"limit": test(async() => {
 			const kv = new Kv()
-			await kv.commit([kv.x.set("1", 1), kv.x.set("2", 2), kv.x.set("3", 3), kv.x.set("4", 4)])
+			await kv.commit([kv.op.set("1", 1), kv.op.set("2", 2), kv.op.set("3", 3), kv.op.set("4", 4)])
 			const keys = await collect(kv.keys({limit: 2}))
 			expect(keys.length).is(2)
 			expect(keys[0]).is("1")
@@ -205,8 +205,8 @@ await science.run({
 			const kv = new Kv()
 			await kv.set("hello", "world")
 			await kv.commit([
-				kv.x.set("alpha", "bravo"),
-				kv.x.delete("hello"),
+				kv.op.set("alpha", "bravo"),
+				kv.op.delete("hello"),
 			])
 			expect(await kv.get("hello")).is(undefined)
 			expect(await kv.get("alpha")).is("bravo")
@@ -219,8 +219,8 @@ await science.run({
 			expect(await kv.get("alpha")).is("ok")
 			expect(await kv.get("bravo")).is("ok")
 			await kv.commit([
-				kv.x.set("alpha", undefined),
-				kv.x.set("bravo", undefined),
+				kv.op.set("alpha", undefined),
+				kv.op.set("bravo", undefined),
 			])
 			expect(await kv.get("alpha")).is(undefined)
 			expect(await kv.get("bravo")).is(undefined)
@@ -230,8 +230,8 @@ await science.run({
 			const kv = new Kv()
 			const subsub = kv.scope("a").scope("b")
 			await kv.commit([
-				kv.x.set("alpha", "bravo"),
-				subsub.x.set("charlie", "delta"),
+				kv.op.set("alpha", "bravo"),
+				subsub.op.set("charlie", "delta"),
 			])
 			expect(await kv.get("alpha")).is("bravo")
 			expect(await subsub.get("charlie")).is("delta")

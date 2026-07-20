@@ -1,13 +1,13 @@
 
 import {Cubby} from "@e280/stz"
 import {Kv} from "./kv.js"
-import {StoreChanger} from "./utils/store-changer.js"
+import {StoreOperator} from "./utils/store-operator.js"
 
 export class Store<V = unknown> implements Cubby<V> {
-	x
+	op
 
 	constructor(public kv: Kv, public key: string) {
-		this.x = new StoreChanger(key, kv.x)
+		this.op = new StoreOperator(key, kv.op)
 	}
 
 	async set(value: V | undefined) {

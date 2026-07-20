@@ -21,15 +21,15 @@
 - 🟥 removed dependency `level`, now we just use our own in-house `LevelLike` type which should be leveldb compatible
 - 🟥 `kv.transaction` replaced by `kv.commit`
   - 🟥 syntax for this feature has changed a little (see readme)
-  - 🟥 `kv.write` replaced by `kv.x` (Changer instance)
-  - 🟥 `Writer` class replaced by `Changer` class
-  - 🟥 `Write` type replaced by `Change` type
+  - 🟥 `kv.write` replaced by `kv.op` (Operator instance)
+  - 🟥 `Writer` class replaced by `Operator` class
+  - 🟥 `Write` type replaced by `Op` type
 - 🟥 kv method changes
   - 🟥 `kv.gets` renamed to `kv.getMany`
   - 🟥 `kv.require` renamed to `kv.need`
   - 🟥 `kv.requires` renamed to `kv.needMany`
   - 🟥 `kv.del` renamed to `kv.delete`, and only accepts one key
-  - 🟥 `kv.sets` is gone (use a kv.commit with many kv.x.set calls)
+  - 🟥 `kv.sets` is gone (use a kv.commit with many kv.op.set calls)
   - 🟥 `kv.flatten` renamed to `kv.crush`
 - 🟥 kv generic type now defaults to `unknown` (was `any`) -- this means you may need to be more explicit with types in some cases
 - 🟥 remove kv option `chunkSize`

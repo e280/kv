@@ -135,74 +135,74 @@ const kv = new Kv()
 
 ## 🪇 more kv methods
 - **`delete` a pair by its key.**
-  ```ts
-  await kv.delete("hello")
-  ```
+    ```ts
+    await kv.delete("hello")
+    ```
 - **`has` checks whether a key exists.**
-  ```ts
-  await kv.has("hello")
-    // true
-  ```
+    ```ts
+    await kv.has("hello")
+      // true
+    ```
 - **`getMany` retrieves many values at once.**
-  ```ts
-  const values = await kv.getMany(["alpha", "bravo"])
-    // [123, undefined]
-  ```
+    ```ts
+    const values = await kv.getMany(["alpha", "bravo"])
+      // [123, undefined]
+    ```
 - **`need` retrieves a value,** or throws when the key doesn't exist.
-  ```ts
-  const value = await kv.need("hello")
-    // "world" (or throws error)
-  ```
+    ```ts
+    const value = await kv.need("hello")
+      // "world" (or throws error)
+    ```
 - **`needMany` retrieves many values,** or throws when any key doesn't exist.
-  ```ts
-  const values = await kv.needMany(["alpha", "bravo"])
-    // [123, 456] (or throws error)
-  ```
+    ```ts
+    const values = await kv.needMany(["alpha", "bravo"])
+      // [123, 456] (or throws error)
+    ```
 - **`entries` loops over key-value pairs.**
-  ```ts
-  for await (const [key, value] of kv.entries())
-    console.log(key, value)
-  ```
-  it's aliased to Symbol.asyncIterator, so you can do this:
-  ```ts
-  for await (const [key, value] of kv)
-    console.log(key, value)
-  ```
-  the `entries` method accepts scan options.
-  ```ts
-  for await (const [key, value] of kv.entries({
-      limit: 100,
-      reverse: false,
-      start: "alpha", // inclusive
-      end: "omega", // exclusive
-    }))
-    console.log(key, value)
-  ```
+    ```ts
+    for await (const [key, value] of kv.entries())
+      console.log(key, value)
+    ```
+    it's aliased to Symbol.asyncIterator, so you can do this:
+    ```ts
+    for await (const [key, value] of kv)
+      console.log(key, value)
+    ```
+    the `entries` method accepts scan options.
+    ```ts
+    for await (const [key, value] of kv.entries({
+        limit: 100,
+        reverse: false,
+        start: "alpha", // inclusive
+        end: "omega", // exclusive
+      }))
+      console.log(key, value)
+    ```
 - **`keys` and `values`.** *(accepts scan options)*
-  ```ts
-  for await (const key of kv.keys()) console.log(key)
-  for await (const value of kv.values()) console.log(value)
-  ```
+    ```ts
+    for await (const key of kv.keys()) console.log(key)
+    for await (const value of kv.values()) console.log(value)
+    ```
 - **`count`.** *(accepts scan options)*
-  ```ts
-  await kv.count()
-    // 123
-  ```
+    ```ts
+    await kv.count()
+      // 123
+    ```
 - **`clear` deletes stuff** within this namespace. *(accepts scan options)*
-  ```ts
-  await kv.clear()
-  ```
+    ```ts
+    await kv.clear()
+    ```
 - **`store` produces a little cubby,** for storing a single value. *(it implements `@e280/stz`'s `Cubby` type)*
-  ```ts
-  const stats = kv.store<{count: number}>("stats")
-  ```
-  ```ts
-  await stats.set({count: 123})
-  ```
-  ```ts
-  await stats.get()
-    // {count: 123} or undefined
-  ```
+    ```ts
+    const stats = kv.store<{count: number}>("stats")
+    ```
+    ```ts
+    await stats.set({count: 123})
+    ```
+    ```ts
+    await stats.get()
+      // {count: 123} or undefined
+    ```
 
 
 

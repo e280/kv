@@ -1,15 +1,14 @@
 
 import {got} from "@e280/stz"
-import {Op} from "./utils/op.js"
 import {Store} from "./store.js"
-import {chunks} from "./utils/chunks.js"
+import {Changer} from "./utils/changer.js"
 import {Prefixer} from "./utils/prefixer.js"
 import {JsonCodec} from "./utils/json-codec.js"
 import {MemoryMagazine} from "./magazines/memory.js"
 import {Magazine, Change, Options, Scan, Pair} from "./types.js"
 
 export class Kv<V = unknown> {
-	op
+	x
 	#magazine
 	#prefixer
 	#options: Options
@@ -24,7 +23,7 @@ export class Kv<V = unknown> {
 			...options,
 		}
 		this.#prefixer = new Prefixer(this.#options)
-		this.op = new Op<V>(this.#prefixer)
+		this.x = new Changer<V>(this.#prefixer)
 	}
 
 	/** create a store which can set or get on a single key */
@@ -50,11 +49,11 @@ export class Kv<V = unknown> {
 	}
 
 	async set<X extends V = V>(key: string, value: X | undefined) {
-		return this.commit([this.op.set(key, value)])
+		return this.commit([this.x.set(key, value)])
 	}
 
 	async delete(key: string) {
-		return this.commit([this.op.delete(key)])
+		return this.commit([this.x.delete(key)])
 	}
 
 	async getMany<X extends V = V>(keys: string[]) {
@@ -107,8 +106,7 @@ export class Kv<V = unknown> {
 		let changes: Change<V>[] = []
 
 		for await (const [key] of this.entries(scan)) {
-			changes.push(this.op.delete(key))
-
+			changes.push(this.x.delete(key))
 			if (changes.length >= 1024) {
 				await this.commit(changes)
 				changes = []

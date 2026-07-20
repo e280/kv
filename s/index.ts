@@ -6,8 +6,6 @@ export * from "./magazines/storage.js"
 
 export * from "./utils/idb/open.js"
 export * from "./utils/idb/types.js"
-export * from "./utils/op.js"
-export * from "./utils/store-op.js"
 
 export * from "./kv.js"
 export * from "./store.js"

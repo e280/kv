@@ -2,7 +2,7 @@
 import {Change} from "../types.js"
 import {Prefixer} from "./prefixer.js"
 
-export class Op<V = unknown> {
+export class Changer<V = unknown> {
 	#prefixer: Prefixer
 
 	constructor(prefixer: Prefixer) {

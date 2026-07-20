@@ -29,8 +29,8 @@ const kv = new Kv()
 - **commit batches of changes, atomically.**
     ```ts
     await kv.commit([
-      kv.op.set("hello", "world"),
-      kv.op.delete("bingus"),
+      kv.x.set("hello", "world"),
+      kv.x.delete("bingus"),
     ])
     ```
 
@@ -107,8 +107,8 @@ const kv = new Kv()
 - 🍋‍🟩 **commits can be cross-scoped,** don't miss this!
     ```ts
     await kv.commit([
-      metadatas.op.set("123", {size: 123, type: "text/plain"}),
-      turtles.op.set("123", "bingus"),
+      metadatas.x.set("123", {size: 123, type: "text/plain"}),
+      turtles.x.set("123", "bingus"),
     ])
     ```
 - **the parent's operations don't hurt the children.**

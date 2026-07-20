@@ -56,6 +56,10 @@ export class Kv<V = unknown> {
 		return this.commit([this.op.set(key, value)])
 	}
 
+	async setMany<X extends V = V>(...changes: [key: string, value: X | undefined][]) {
+		return this.commit(changes.map(([key, value]) => this.op.set(key, value)))
+	}
+
 	async delete(...keys: string[]) {
 		return this.commit(keys.map(key => this.op.delete(key)))
 	}

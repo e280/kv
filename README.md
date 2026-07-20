@@ -154,6 +154,10 @@ const kv = new Kv()
     await kv.has("hello")
       // true
     ```
+- **`setMany` sets many key-value pairs at once.**
+    ```ts
+    await kv.setMany(["1", "alpha"], ["1", "alpha"])
+    ```
 - **`getMany` retrieves many values at once.**
     ```ts
     const values = await kv.getMany(["alpha", "bravo"])

@@ -242,6 +242,8 @@ await science.run({
 			expect(await subsub.get("charlie")).is("delta")
 			expect(await kv.count()).is(1)
 			expect(await subsub.count()).is(1)
+			expect(await kv.crush().get(":alpha")).is("bravo")
+			expect(await kv.crush().get("a.b:charlie")).is("delta")
 		}),
 	}),
 })

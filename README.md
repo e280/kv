@@ -4,9 +4,7 @@
 # 🪇 kv
 
 **tiny key-value storage library.**  
-typescript. node or web. kv can be backed in-memory, leveldb, localstorage, or indexeddb. scoped namespaces and atomic write batches.
-
-my favorite thing about kv is that i can pass scoped and typed `Kv` instances around to my app's components, and they don't have to worry about where the data actually lives. oh, i need to save some stuff? i'll just need a `Kv<Stuff>` for that...
+typescript. node or web. memory, leveldb, localstorage, or indexeddb. scoped namespaces and atomic write batches. pass scoped and typed kv instances around to your app components, they don't need to worry about where the data actually lives.  
 
 ```bash
 npm install @e280/kv
@@ -245,9 +243,9 @@ import {Kv} from "@e280/kv"
     await muffins.set(99)
     ```
     ```ts
+    await muffins.has() // true or false
     await muffins.get() // number or undefined
     await muffins.need() // number or throws error
-    await muffins.has() // true or false
     ```
     ```ts
     await muffins.delete()

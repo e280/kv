@@ -29,7 +29,7 @@
   - 🟥 `kv.require` renamed to `kv.need`
   - 🟥 `kv.requires` renamed to `kv.needMany`
   - 🟥 `kv.del` renamed to `kv.delete`
-  - 🟥 `kv.sets` renamed to `kv.setMany`
+  - 🟥 `kv.sets` replaced by to `kv.setMany` (not rest param anymore)
   - 🟥 `kv.flatten` replaced by `kv.subtree`
 - 🟥 kv generic type now defaults to `unknown` (was `any`) -- this means you may need to be more explicit with types in some cases
 - 🟥 remove kv options `divisor`, `delimiter`, `chunkSize`

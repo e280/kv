@@ -175,7 +175,7 @@ import {Kv} from "@e280/kv"
     ```
 - **`setMany` sets many key-value pairs at once.**
     ```ts
-    await kv.setMany(["1", "alpha"], ["1", "alpha"])
+    await kv.setMany([["1", "alpha"], ["2", "bravo"]])
     ```
 - **`getMany` retrieves many values at once.**
     ```ts

@@ -226,17 +226,21 @@ const kv = new Kv()
     ```ts
     await kv.clear()
     ```
-- **`cell` produces a little cubby,** for storing a single value.  
+- **`cell` makes a little cubby,** for storing a single value.  
     > *(it implements `@e280/stz`'s `Cubby` type)*
     ```ts
-    const stats = kv.cell<{count: number}>("stats")
+    const muffins = kv.cell<number>("muffins")
     ```
     ```ts
-    await stats.set({count: 123})
+    await muffins.set(99)
     ```
     ```ts
-    await stats.get()
-      // {count: 123} or undefined
+    await muffins.get() // number or undefined
+    await muffins.need() // number or throws error
+    await muffins.has() // true or false
+    ```
+    ```ts
+    await muffins.delete()
     ```
 
 

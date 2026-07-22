@@ -208,6 +208,21 @@ await science.run({
 			expect(await bravo.subtree.count()).is(3)
 		}),
 
+		"subtree avoids prefix collisions": test(async() => {
+			const kv = new Kv()
+			const alpha = kv.scope("alpha")
+			const alphabet = kv.scope("alphabet")
+
+			await alpha.set("one", 1)
+			await alphabet.set("two", 2)
+
+			expect(await alpha.subtree.count()).is(1)
+			await alpha.subtree.clear()
+
+			expect(await alpha.count()).is(0)
+			expect(await alphabet.count()).is(1)
+		}),
+
 		"localized clear": test(async() => {
 			const kv = new Kv()
 			const alpha = kv.scope("alpha")

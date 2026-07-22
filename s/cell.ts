@@ -1,13 +1,13 @@
 
 import {Cubby, got} from "@e280/stz"
 import {Kv} from "./kv.js"
-import {StoreOperator} from "./utils/store-operator.js"
+import {CellOperator} from "./utils/cell-operator.js"
 
-export class Store<V = unknown> implements Cubby<V> {
+export class Cell<V = unknown> implements Cubby<V> {
 	op
 
 	constructor(public kv: Kv, public key: string) {
-		this.op = new StoreOperator(key, kv.op)
+		this.op = new CellOperator(key, kv.op)
 	}
 
 	async set(value: V | undefined) {
@@ -16,6 +16,10 @@ export class Store<V = unknown> implements Cubby<V> {
 
 	async get(): Promise<V | undefined> {
 		return this.kv.get(this.key)
+	}
+
+	async has(): Promise<boolean> {
+		return (await this.get()) !== undefined
 	}
 
 	async need(): Promise<V> {

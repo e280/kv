@@ -1,6 +1,6 @@
 
 import {got} from "@e280/stz"
-import {Store} from "./store.js"
+import {Cell} from "./cell.js"
 import {consts} from "./consts.js"
 import {Subtree} from "./subtree.js"
 import {Operator} from "./utils/operator.js"
@@ -32,9 +32,9 @@ export class Kv<V = unknown> {
 		validateScopes(this.#options.scopes)
 	}
 
-	/** create a store which can set or get on a single key */
-	store<X extends V = V>(key: string) {
-		return new Store<X>(this, key)
+	/** create a cell which can set or get on a single key */
+	cell<X extends V = V>(key: string) {
+		return new Cell<X>(this, key)
 	}
 
 	/** create a sub kv where all keys inherit a prefix */

@@ -3,7 +3,7 @@ import {collect} from "@e280/stz"
 import {science, suite, test, expect} from "@e280/science"
 
 import {Kv} from "./kv.js"
-import { MemoryMagazine } from "./magazines/memory.js"
+import {MemoryMagazine} from "./magazines/memory.js"
 
 await science.run({
 	"access": suite({
@@ -285,6 +285,23 @@ await science.run({
 			expect(await subsub.get("charlie")).is("delta")
 			expect(await kv.count()).is(1)
 			expect(await subsub.count()).is(1)
+		}),
+	}),
+
+	"cell": suite({
+		"set, has, get, need, delete": test(async() => {
+			const kv = new Kv()
+			const cell = kv.cell("alpha")
+			await cell.set(123)
+			expect(await cell.get()).is(123)
+			expect(await cell.has()).is(true)
+			expect(await cell.need()).is(123)
+			expect(await kv.get("alpha")).is(123)
+			expect(await kv.count()).is(1)
+			await cell.delete()
+			expect(await cell.has()).is(false)
+			await expect(async() => await cell.need()).throwsAsync()
+			expect(await kv.count()).is(0)
 		}),
 	}),
 })

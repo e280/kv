@@ -1,7 +1,7 @@
 
 import {Operator} from "./operator.js"
 
-export class StoreOperator<V = unknown> {
+export class CellOperator<V = unknown> {
 	#key
 	#parent
 

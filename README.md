@@ -226,9 +226,10 @@ const kv = new Kv()
     ```ts
     await kv.clear()
     ```
-- **`store` produces a little cubby,** for storing a single value. *(it implements `@e280/stz`'s `Cubby` type)*
+- **`cell` produces a little cubby,** for storing a single value.  
+    > *(it implements `@e280/stz`'s `Cubby` type)*
     ```ts
-    const stats = kv.store<{count: number}>("stats")
+    const stats = kv.cell<{count: number}>("stats")
     ```
     ```ts
     await stats.set({count: 123})

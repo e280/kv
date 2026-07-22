@@ -6,7 +6,7 @@ import {Kv} from "./kv.js"
 
 await science.run({
 	"access": suite({
-		"string": test(async() => {
+		"set and get": test(async() => {
 			const kv = new Kv()
 			await kv.set("hello", "world")
 			expect(await kv.get("hello")).is("world")
@@ -113,6 +113,14 @@ await science.run({
 	}),
 
 	"scope": suite({
+		"validation": test(async() => {
+			const kv = new Kv()
+			expect(() => kv.scope("a")).not.throws()
+			expect(() => kv.scope("a.b")).throws()
+			expect(() => kv.scope("a:b")).throws()
+			expect(() => kv.scope("")).throws()
+		}),
+
 		"level one": test(async() => {
 			const kv = new Kv()
 			const sub = kv.scope("a")

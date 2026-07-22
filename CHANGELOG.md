@@ -40,6 +40,7 @@
   - 🟥 eg, you used to be able to call `await kv.clear()` to wipe ALL data even in every scope -- this no longer works, you can only clear what's on your current scope
   - 🟥 if you actually wanna nuke everything on all child scopes, you do `await kv.subtree().clear()` -- subtree lets you "see" all child scopes
 - 🟥 removed `collect` helper (its now in `@e280/stz`)
+- 🟥 scopes containing `.` or `:` or empty string are no longer tolerated (throws error)
 - 🍏 add kv option `codec` with type `Codec` which defaults to a json codec
 - 🍏 add kv `count` method
 - 🍏 add scan `reverse` option -- we can now scan stuff in reverse

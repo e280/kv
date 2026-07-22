@@ -108,6 +108,15 @@ const kv = new Kv()
     await records.clear()
       // deletes "records" values without touching the "turtles" values
     ```
+- **more about scope names,**
+    ```ts
+    // use rest params if you like
+    const turtles = kv.scope("records", "turtles")
+    ```
+    ```ts
+    // ❌ illegal: empty strings, reserved characters "." and ":"
+    kv.scope("", "e280.org", "e280:org")
+    ```
 - **don't forget you can set strict types,** on both Kv and its scopes.
     ```ts
     const kv = new Kv<unknown>()
@@ -127,15 +136,6 @@ const kv = new Kv()
     > *generally, you should always be using a scoped kv. it's weird to directly use the root scope.*
     ```ts
     await kv.set("123", "bingus") // key ":123"
-    ```
-- 📣 **don't abuse the `.` divisor and `:` delimiter in scope names.**  
-    > *kv doesn't escape the scope names, so using those characters could cause trouble.*
-    ```ts
-    kv.scope("records.turtles")
-      //      |
-      // *equivalent*
-      //      |
-    kv.scope("records").scope("turtles")
     ```
 - **`subtree` is black magic,** which allows the parents to hurt their children.
     ```ts

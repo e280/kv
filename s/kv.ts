@@ -7,6 +7,7 @@ import {Operator} from "./utils/operator.js"
 import {Prefixer} from "./utils/prefixer.js"
 import {JsonCodec} from "./utils/json-codec.js"
 import {MemoryMagazine} from "./magazines/memory.js"
+import {validateScopes} from "./utils/validate-scopes.js"
 import {Magazine, Op, Options, Scan, Pair} from "./types.js"
 
 export class Kv<V = unknown> {
@@ -15,7 +16,10 @@ export class Kv<V = unknown> {
 	#prefixer
 	#options: Options
 
-	constructor(magazine: Magazine = new MemoryMagazine(), options: Partial<Options> = {}) {
+	constructor(
+			magazine: Magazine = new MemoryMagazine(),
+			options: Partial<Options> = {},
+		) {
 		this.#magazine = magazine
 		this.#options = {
 			codec: new JsonCodec(),
@@ -24,6 +28,7 @@ export class Kv<V = unknown> {
 		}
 		this.#prefixer = new Prefixer(this.#options)
 		this.op = new Operator<V>(this.#prefixer)
+		validateScopes(this.#options.scopes)
 	}
 
 	/** create a store which can set or get on a single key */

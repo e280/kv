@@ -117,16 +117,20 @@ await science.run({
 			const kv = new Kv()
 			const sub = kv.scope("a")
 			await sub.set("hello", 123)
+			expect(await kv.count()).is(0)
+			expect(await sub.count()).is(1)
 			expect(await sub.get("hello")).is(123)
-			expect(await kv.crush().get("a:hello")).is(123)
 		}),
 
 		"level two": test(async() => {
 			const kv = new Kv()
+			const sub = kv.scope("a")
 			const subsub = kv.scope("a").scope("b")
 			await subsub.set("hello", 123)
+			expect(await kv.count()).is(0)
+			expect(await sub.count()).is(0)
+			expect(await subsub.count()).is(1)
 			expect(await subsub.get("hello")).is(123)
-			expect(await kv.crush().get("a.b:hello")).is(123)
 		}),
 
 		"iterations": test(async() => {
@@ -142,33 +146,23 @@ await science.run({
 			expect((await collect(bravo)).length).is(1)
 		}),
 
-		"empty string still creates empty segments": test(async() => {
-			const kv = new Kv()
-			const sub1 = kv.scope("")
-			await sub1.set("hello", 123)
-			expect(await sub1.get("hello")).is(123)
-			expect(await kv.crush().get(":hello")).is(123)
-			const sub2 = kv.scope("").scope("")
-			await sub2.set("hello", 123)
-			expect(await sub2.get("hello")).is(123)
-			expect(await kv.crush().get(".:hello")).is(123)
-		}),
-
-		"crush to wipe namespace": test(async() => {
-			const kv = new Kv()
-			const a = kv.scope("a")
-			const aFlat = kv.scope("a").crush()
-			const b = a.scope("b")
-			await b.set("hello", 123)
-			expect(await b.get("hello")).is(123)
-			await aFlat.clear()
-			expect(await b.get("hello")).is(undefined)
-		}),
-
-		"crushed counts": test(async() => {
+		"subtree clear": test(async() => {
 			const kv = new Kv()
 			const alpha = kv.scope("alpha")
-			const bravo = alpha.scope("bravo")
+			const bravo = kv.scope("alpha", "bravo")
+			await alpha.set("hello", 123)
+			await bravo.set("hello", 123)
+			expect(await alpha.count()).is(1)
+			expect(await bravo.count()).is(1)
+			await alpha.subtree().clear()
+			expect(await alpha.count()).is(0)
+			expect(await bravo.count()).is(0)
+		}),
+
+		"subtree counts": test(async() => {
+			const kv = new Kv()
+			const alpha = kv.scope("alpha")
+			const bravo = kv.scope("alpha", "bravo")
 			await kv.set("1", true)
 			await alpha.set("2", true)
 			await alpha.set("3", true)
@@ -178,9 +172,9 @@ await science.run({
 			expect(await kv.count()).is(1)
 			expect(await alpha.count()).is(2)
 			expect(await bravo.count()).is(3)
-			expect(await kv.crush().count()).is(6)
-			expect(await alpha.crush().count()).is(5)
-			expect(await bravo.crush().count()).is(3)
+			expect(await kv.subtree().count()).is(6)
+			expect(await alpha.subtree().count()).is(5)
+			expect(await bravo.subtree().count()).is(3)
 		}),
 
 		"localized clear": test(async() => {
@@ -189,9 +183,9 @@ await science.run({
 			const bravo = kv.scope("bravo")
 			await alpha.set("hello1", 1)
 			await bravo.set("hello2", 2)
-			expect((await collect(kv.crush())).length).is(2)
+			expect(await kv.subtree().count()).is(2)
 			await bravo.clear()
-			expect((await collect(kv.crush())).length).is(1)
+			expect(await kv.subtree().count()).is(1)
 			expect((await collect(alpha.keys()))[0]).is("hello1")
 		}),
 
@@ -260,8 +254,6 @@ await science.run({
 			expect(await subsub.get("charlie")).is("delta")
 			expect(await kv.count()).is(1)
 			expect(await subsub.count()).is(1)
-			expect(await kv.crush().get(":alpha")).is("bravo")
-			expect(await kv.crush().get("a.b:charlie")).is("delta")
 		}),
 	}),
 })

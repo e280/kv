@@ -1,12 +1,16 @@
 
+import {consts} from "../consts.js"
 import {Options, Scan} from "../types.js"
+import {prefixEnd} from "./prefix-end.js"
+
+const {divisor, delimiter} = consts
 
 export class Prefixer {
 	#prefix: string
 	#end: string | undefined
 
 	constructor(options: Options) {
-		const {scopes, divisor, delimiter} = options
+		const {scopes} = options
 		this.#prefix = scopes.join(divisor) + delimiter
 		this.#end = prefixEnd(this.#prefix)
 	}
@@ -31,20 +35,5 @@ export class Prefixer {
 			reverse,
 		}
 	}
-}
-
-function prefixEnd(prefix: string) {
-	for (let index = prefix.length - 1; index >= 0; index--) {
-		const code = prefix.charCodeAt(index)
-
-		if (code < 0xFFFF) {
-			return (
-				prefix.slice(0, index) +
-				String.fromCharCode(code + 1)
-			)
-		}
-	}
-
-	return undefined
 }
 

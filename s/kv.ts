@@ -1,6 +1,8 @@
 
 import {got} from "@e280/stz"
 import {Store} from "./store.js"
+import {consts} from "./consts.js"
+import {Subtree} from "./subtree.js"
 import {Operator} from "./utils/operator.js"
 import {Prefixer} from "./utils/prefixer.js"
 import {JsonCodec} from "./utils/json-codec.js"
@@ -18,8 +20,6 @@ export class Kv<V = unknown> {
 		this.#options = {
 			codec: new JsonCodec(),
 			scopes: [],
-			divisor: ".",
-			delimiter: ":",
 			...options,
 		}
 		this.#prefixer = new Prefixer(this.#options)
@@ -32,14 +32,16 @@ export class Kv<V = unknown> {
 	}
 
 	/** create a sub kv where all keys inherit a prefix */
-	scope<X = unknown>(scope: string, delimiter = this.#options.delimiter) {
-		const scopes = [...this.#options.scopes, scope]
-		return new Kv<X>(this.#magazine, {...this.#options, delimiter, scopes})
+	scope<X = unknown>(...scopes: string[]) {
+		return new Kv<X>(this.#magazine, {
+			...this.#options,
+			scopes: [...this.#options.scopes, ...scopes],
+		})
 	}
 
-	/** no delimiter means all sub namespaces are accessible */
-	crush() {
-		return new Kv<V>(this.#magazine, {...this.#options, delimiter: ""})
+	/** direct access to ALL keys under this scope */
+	subtree() {
+		return new Subtree(this.#magazine, this.#options.scopes)
 	}
 
 	async commit(ops: Op<V>[]) {
@@ -125,7 +127,7 @@ export class Kv<V = unknown> {
 
 		for await (const [key] of this.entries(scan)) {
 			changes.push(this.op.delete(key))
-			if (changes.length >= 1024) {
+			if (changes.length >= consts.chunkSize) {
 				await this.commit(changes)
 				changes = []
 			}

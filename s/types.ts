@@ -27,8 +27,6 @@ export type Codec = {
 export type Options = {
 	codec: Codec
 	scopes: string[]
-	divisor: string
-	delimiter: string
 }
 
 export type LevelLike = {

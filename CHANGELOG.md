@@ -30,15 +30,15 @@
   - 🟥 `kv.requires` renamed to `kv.needMany`
   - 🟥 `kv.del` renamed to `kv.delete`
   - 🟥 `kv.sets` renamed to `kv.setMany`
-  - 🟥 `kv.flatten` renamed to `kv.crush`
+  - 🟥 `kv.flatten` replaced by `kv.subtree`
 - 🟥 kv generic type now defaults to `unknown` (was `any`) -- this means you may need to be more explicit with types in some cases
-- 🟥 remove kv option `chunkSize`
+- 🟥 remove kv options `divisor`, `delimiter`, `chunkSize`
 - 🟥 scan `end` is now EXCLUSIVE, it used to be inclusive -- scans are "half open"
 - 🟥 rework the way prefixing works
   - 🟥 the root-level Kv instance is no longer special -- it no longer can see omnisciently into its child scopes -- it's like any other scope
   - 🟥 the change is that all root-level kv keys are actually (opaquely) prefixed with the delimiter (default `:`) -- that means if you inspect your magazine directly, you'll see root level has keys like `:123`
   - 🟥 eg, you used to be able to call `await kv.clear()` to wipe ALL data even in every scope -- this no longer works, you can only clear what's on your current scope
-  - 🟥 if you actually wanna nuke everything on all child scopes, you do `await kv.crush().clear()` -- crush lets you "see" all child scopes
+  - 🟥 if you actually wanna nuke everything on all child scopes, you do `await kv.subtree().clear()` -- subtree lets you "see" all child scopes
 - 🟥 removed `collect` helper (its now in `@e280/stz`)
 - 🍏 add kv option `codec` with type `Codec` which defaults to a json codec
 - 🍏 add kv `count` method

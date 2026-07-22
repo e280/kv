@@ -137,13 +137,13 @@ const kv = new Kv()
       //      |
     kv.scope("records").scope("turtles")
     ```
-- **`crush` is black magic,** which allows the parents to hurt their children.
+- **`subtree` is black magic,** which allows the parents to hurt their children.
     ```ts
-    await records.crush().count()
+    await records.subtree().count()
       // counts all keys including child scopes like the turtles.
     ```
     ```ts
-    await records.crush().clear()
+    await records.subtree().clear()
       // this wipes out all the turtles.
     ```
 

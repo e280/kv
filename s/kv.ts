@@ -7,12 +7,18 @@ import {Operator} from "./utils/operator.js"
 import {Prefixer} from "./utils/prefixer.js"
 import {JsonCodec} from "./utils/json-codec.js"
 import {MemoryMagazine} from "./magazines/memory.js"
+import {validateScan} from "./utils/validate-scan.js"
 import {validateScopes} from "./utils/validate-scopes.js"
 import {Magazine, Op, Options, Scan, Pair} from "./types.js"
-import { validateScan } from "./utils/validate-scan.js"
 
 export class Kv<V = unknown> {
-	op
+
+	/** facility for writing operations that could be committed. */
+	readonly op
+
+	/** methods that can access all entries under this scope, including child scopes. */
+	readonly subtree
+
 	#magazine
 	#prefixer
 	#options: Options
@@ -27,9 +33,10 @@ export class Kv<V = unknown> {
 			scopes: [],
 			...options,
 		}
+		validateScopes(this.#options.scopes)
 		this.#prefixer = new Prefixer(this.#options)
 		this.op = new Operator<V>(this.#prefixer)
-		validateScopes(this.#options.scopes)
+		this.subtree = new Subtree(this.#magazine, this.#options.scopes)
 	}
 
 	/** create a cell which can set or get on a single key */
@@ -43,11 +50,6 @@ export class Kv<V = unknown> {
 			...this.#options,
 			scopes: [...this.#options.scopes, ...scopes],
 		})
-	}
-
-	/** direct access to ALL keys under this scope */
-	subtree() {
-		return new Subtree(this.#magazine, this.#options.scopes)
 	}
 
 	async commit(ops: Op<V>[]) {

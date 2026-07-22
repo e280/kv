@@ -185,7 +185,7 @@ await science.run({
 			await bravo.set("hello", 123)
 			expect(await alpha.count()).is(1)
 			expect(await bravo.count()).is(1)
-			await alpha.subtree().clear()
+			await alpha.subtree.clear()
 			expect(await alpha.count()).is(0)
 			expect(await bravo.count()).is(0)
 		}),
@@ -203,9 +203,9 @@ await science.run({
 			expect(await kv.count()).is(1)
 			expect(await alpha.count()).is(2)
 			expect(await bravo.count()).is(3)
-			expect(await kv.subtree().count()).is(6)
-			expect(await alpha.subtree().count()).is(5)
-			expect(await bravo.subtree().count()).is(3)
+			expect(await kv.subtree.count()).is(6)
+			expect(await alpha.subtree.count()).is(5)
+			expect(await bravo.subtree.count()).is(3)
 		}),
 
 		"localized clear": test(async() => {
@@ -214,9 +214,9 @@ await science.run({
 			const bravo = kv.scope("bravo")
 			await alpha.set("hello1", 1)
 			await bravo.set("hello2", 2)
-			expect(await kv.subtree().count()).is(2)
+			expect(await kv.subtree.count()).is(2)
 			await bravo.clear()
-			expect(await kv.subtree().count()).is(1)
+			expect(await kv.subtree.count()).is(1)
 			expect((await collect(alpha.keys()))[0]).is("hello1")
 		}),
 

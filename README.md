@@ -3,8 +3,10 @@
 
 # 🪇 kv
 
-**kv is a tiny key-value database.**  
-typescript library. node or web. kv can be backed in-memory, leveldb, localstorage, or indexeddb. kv does smart stuff like scoped namespaces and atomic write batches.
+**tiny key-value storage library.**  
+typescript. node or web. kv can be backed in-memory, leveldb, localstorage, or indexeddb. scoped namespaces and atomic write batches.
+
+my favorite thing about kv is that i can pass scoped and typed `Kv` instances around to my app's components, and they don't have to worry about where the data actually lives. oh, i need to save some stuff? i'll just need a `Kv<Stuff>` for that...
 
 ```bash
 npm install @e280/kv
@@ -12,18 +14,23 @@ npm install @e280/kv
 
 ```ts
 import {Kv} from "@e280/kv"
-
-const kv = new Kv()
 ```
 
-- **set and get.**
+
+
+## 🪇 kv is easy.
+- **make your kv.**
     ```ts
-    await kv.set("hello", "world")
+    const kv = new Kv()
+    ```
+- **set and get stuff.**
+    ```ts
+    await kv.set("penguins", 123)
       // setting undefined is the same as delete
     ```
     ```ts
-    await kv.get("hello")
-      // "world"
+    await kv.get("penguins")
+      // 123
     ```
 - **keys are strings. values can be any json data.**
     ```ts
@@ -32,16 +39,16 @@ const kv = new Kv()
 - **commit batches of ops, atomically.**
     ```ts
     await kv.commit([
-      kv.op.set("hello", "world"),
+      kv.op.set("pangolins", 100),
       kv.op.delete("bingus"),
     ])
     ```
 
 
 
-## 🪇 plug in your favorite kv magazine
+## 🪇 plug in your favorite kv magazine.
 - **MemoryMagazine *(default),*** ephemeral in-memory storage.  
-    > *memory magazine is slow and the commits are not atomic. it's meant for testing.*
+    > *memory magazine is slow and non-atomic. it's meant for testing.*
     ```ts
     import {Kv, MemoryMagazine} from "@e280/kv"
 
@@ -63,7 +70,7 @@ const kv = new Kv()
     const kv = new Kv(new IdbMagazine(idb))
     ```
 - **StorageMagazine,** in-browser localStorage/sessionStorage.
-    > *storage magazine is slow and the commits are not atomic. it's meant for small amounts of data.*
+    > *storage magazine is slow and non-atomic. it's meant for small amounts of data.*
     ```ts
     import {Kv, StorageMagazine} from "@e280/kv"
 
@@ -84,72 +91,75 @@ const kv = new Kv()
 
 
 
-## 🪇 kv scopes
-- **`scope` creates a namespace.**
+## 🪇 kv scopes.
+- **`scope` makes namespaced Kv instances.**
     ```ts
-    const records = kv.scope("records")
-      // creates a Kv instance for this scope
+    const users = kv.scope("users")
+    const messages = kv.scope("messages")
+    ```
+    ```ts
+    await users.set("111", "chase")
+    await messages.set("222", ["111", "yo"])
+    ```
+    ```ts
+    await kv.get("111") // undefined
+      // 👮 parent is blind to child entries
 
-    await records.set("123", "bingus")
-      // writes to key "records:123"
+    await users.get("222") // undefined
+      // 👮 child is blind to sibling and parent entries
     ```
-- **scopes are nestable,** it's turtles all the way down.
+- **scopes are nestable,** and it's turtles all the way down.
     ```ts
-    const turtles = kv.scope("records").scope("turtles")
+    kv.scope("animals").scope("turtles")
 
-    await turtles.set("123", "bingus")
-      // writes to key "records.turtles:123"
-    ```
-- **the parent's operations don't hurt siblings or children.**
-    ```ts
-    const records = kv.scope("records")
-    const turtles = records.scope("turtles")
+    // 🥸 equivalent
+    kv.scope("animals", "turtles")
 
-    await records.clear()
-      // deletes "records" values without touching the "turtles" values
-    ```
-- **more about scope names,**
-    ```ts
-    // use rest params if you like
-    const turtles = kv.scope("records", "turtles")
-    ```
-    ```ts
-    // ❌ illegal: empty strings, reserved characters "." and ":"
+    // 🙅 illegal: empty strings, reserved characters "." and ":"
     kv.scope("", "e280.org", "e280:org")
     ```
-- **don't forget you can set strict types,** on both Kv and its scopes.
+- **all kv operations are isolated to their own scope.**  
+    > *the root kv is a scope like any other.*
+    ```ts
+    const animals = kv.scope("animals")
+    const turtles = animals.scope("turtles")
+    const squirrels = animals.scope("squirrels")
+    ```
+    ```ts
+    await animals.clear()
+      // 👮 turtles and squirrels are safe
+    ```
+    ```ts
+    await squirrels.clear()
+      // 👮 turtles are safe
+    ```
+- ☣️ **`subtree` is dangerous,** it allows a parent scope to hurt its children.  
+    > *it returns a special `Subtree` instance that only has `count` and `clear` methods.*
+    ```ts
+    await animals.subtree.count()
+      // count includes animals, turtles, and squirrels
+    ```
+    ```ts
+    await animals.subtree.clear()
+      // 💀 wipes out the turtles and squirrels. i'm sorry.
+    ```
+- **don't forget you can set strict types,** on both Kv and scopes.
     ```ts
     const kv = new Kv<unknown>()
-    const metadatas = kv.scope<{size: number}>("metadatas")
-    const turtles = kv.scope("records").scope<string>("turtles")
-
-    await metadatas.set("123", {size: 234})
+    const users = kv.scope<string>("users")
+    const messages = kv.scope<[author: string, text: string]>("messages")
     ```
 - 🍋‍🟩 **commits can be cross-scoped,** don't miss this!
     ```ts
     await kv.commit([
-      metadatas.op.set("123", {size: 234}), // key "metadatas:123"
-      turtles.op.set("123", "bingus"), // key "records.turtles:123"
+      users.op.set("345", "bingus"),
+      messages.op.set("456", ["345", "don't let the raccoons know"]),
     ])
     ```
-- **the root kv is just an unnamed scope,** and works like any other scope.
-    > *generally, you should always be using a scoped kv. it's weird to directly use the root scope.*
-    ```ts
-    await kv.set("123", "bingus") // key ":123"
-    ```
-- **`subtree` is black magic,** which allows the parents to hurt their children.
-    ```ts
-    await records.subtree().count()
-      // counts all keys including child scopes like the turtles.
-    ```
-    ```ts
-    await records.subtree().clear()
-      // this wipes out all the turtles.
-    ```
 
 
 
-## 🪇 more kv methods
+## 🪇 more kv methods.
 - **`delete` a pair by its key.**
     ```ts
     await kv.delete("hello")
@@ -172,12 +182,12 @@ const kv = new Kv()
     const values = await kv.getMany(["alpha", "bravo"])
       // [123, undefined]
     ```
-- **`need` retrieves a value,** or throws when the key doesn't exist.
+- **`need` retrieves a value,** or throws if the value is missing/nullish.
     ```ts
     const value = await kv.need("hello")
       // "world" (or throws error)
     ```
-- **`needMany` retrieves many values,** or throws when any key doesn't exist.
+- **`needMany` retrieves many values,** or throws on missing/nullish values.
     ```ts
     const values = await kv.needMany(["alpha", "bravo"])
       // [123, 234] (or throws error)
@@ -187,7 +197,7 @@ const kv = new Kv()
     for await (const [key, value] of kv.entries())
       console.log(key, value)
     ```
-    it's aliased to Symbol.asyncIterator, so you can do this:
+    it's aliased to `Symbol.asyncIterator`, so you can do this:
     ```ts
     for await (const [key, value] of kv)
       console.log(key, value)
@@ -241,6 +251,14 @@ const kv = new Kv()
     ```
     ```ts
     await muffins.delete()
+    ```
+    you can pass typed `Cell<X>` instances all around your app.
+    ```ts
+    import {Cell} from "@e280/kv"
+
+    class MuffinCaptain {
+      constructor(public muffins: Cell<number>) {}
+    }
     ```
 
 

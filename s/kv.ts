@@ -9,6 +9,7 @@ import {JsonCodec} from "./utils/json-codec.js"
 import {MemoryMagazine} from "./magazines/memory.js"
 import {validateScopes} from "./utils/validate-scopes.js"
 import {Magazine, Op, Options, Scan, Pair} from "./types.js"
+import { validateScan } from "./utils/validate-scan.js"
 
 export class Kv<V = unknown> {
 	op
@@ -103,7 +104,7 @@ export class Kv<V = unknown> {
 	}
 
 	async* entries<X extends V = V>(scan: Scan = {}) {
-		scan = this.#prefixer.scan(scan)
+		scan = validateScan(this.#prefixer.scan(scan))
 
 		for await (const [key, value] of this.#magazine.entries(scan)) {
 			const key2 = this.#prefixer.unprefix(key)

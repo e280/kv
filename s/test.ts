@@ -83,6 +83,16 @@ await science.run({
 			expect(await kv.has("bravo")).is(false)
 			expect(await kv.count()).is(1)
 		}),
+
+		"scan limit validation": test(async() => {
+			const kv = new Kv()
+			await kv.set("alpha", 123)
+			expect(await kv.count({limit: 0})).is(0)
+			expect(await kv.count({limit: 1})).is(1)
+			await expect(async() => kv.count({limit: NaN})).throwsAsync()
+			await expect(async() => kv.count({limit: Infinity})).throwsAsync()
+			await expect(async() => kv.count({limit: -1})).throwsAsync()
+		}),
 	}),
 
 	"iterate": suite({

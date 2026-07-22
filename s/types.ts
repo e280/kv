@@ -21,7 +21,7 @@ export type Scan = {
 
 export type Codec = {
 	encode(value: unknown): string
-	decode<X = unknown>(text: string): X
+	decode<X = unknown>(text: string): X | undefined
 }
 
 export type Options = {

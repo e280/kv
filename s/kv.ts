@@ -89,10 +89,12 @@ export class Kv<V = unknown> {
 		return (await this.get(key)) !== undefined
 	}
 
+	/** throw if the value is undefined or null */
 	async need<X extends V = V>(key: string) {
 		return got(await this.get<X>(key), `key not found "${key}"`)
 	}
 
+	/** throw if the value is undefined or null */
 	async needMany<X extends V = V>(keys: string[]) {
 		const values = await this.getMany<X>(keys)
 		for (const [index, key] of keys.entries())
@@ -103,8 +105,12 @@ export class Kv<V = unknown> {
 	async* entries<X extends V = V>(scan: Scan = {}) {
 		scan = this.#prefixer.scan(scan)
 
-		for await (const [key, value] of this.#magazine.entries(scan))
-			yield [this.#prefixer.unprefix(key), this.#options.codec.decode(value)] as Pair<X>
+		for await (const [key, value] of this.#magazine.entries(scan)) {
+			const key2 = this.#prefixer.unprefix(key)
+			const value2 = this.#options.codec.decode<X>(value)
+			if (value2 !== undefined)
+				yield [key2, value2] as Pair<X>
+		}
 	}
 
 	[Symbol.asyncIterator]() {

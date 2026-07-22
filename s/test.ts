@@ -3,6 +3,7 @@ import {collect} from "@e280/stz"
 import {science, suite, test, expect} from "@e280/science"
 
 import {Kv} from "./kv.js"
+import { MemoryMagazine } from "./magazines/memory.js"
 
 await science.run({
 	"access": suite({
@@ -69,6 +70,18 @@ await science.run({
 
 			const bravo = await kv.need("hello")
 			expect(bravo.a).is(1)
+		}),
+	}),
+
+	"integrity": suite({
+		"malformed data is ignored": test(async() => {
+			const magazine = new MemoryMagazine()
+			const kv = new Kv(magazine)
+			await magazine.commit([[":alpha", "true"], [":bravo", "}"]])
+			expect(await kv.get("alpha")).is(true)
+			expect(await kv.get("bravo")).is(undefined)
+			expect(await kv.has("bravo")).is(false)
+			expect(await kv.count()).is(1)
 		}),
 	}),
 

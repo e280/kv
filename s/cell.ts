@@ -1,9 +1,10 @@
 
 import {Cubby, got} from "@e280/stz"
 import {Kv} from "./kv.js"
+import {Value} from "./types.js"
 import {CellOperator} from "./utils/cell-operator.js"
 
-export class Cell<V = unknown> implements Cubby<V> {
+export class Cell<V = Value> implements Cubby<V> {
 	op
 
 	constructor(public kv: Kv, public key: string) {

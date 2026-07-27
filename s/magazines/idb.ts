@@ -1,7 +1,7 @@
 
 import {Idb} from "../utils/idb/types.js"
 import {idbRange} from "../utils/idb/range.js"
-import {Op, Magazine, Scan} from "../types.js"
+import {Op, Magazine, Scan, Value} from "../types.js"
 import {idbTransactions} from "../utils/idb/transactions.js"
 
 export class IdbMagazine implements Magazine {
@@ -11,7 +11,7 @@ export class IdbMagazine implements Magazine {
 		this.#tx = idbTransactions(idb)
 	}
 
-	async commit(ops: Op<string>[]) {
+	async commit(ops: Op<Value>[]) {
 		return this.#tx.readwrite(async store => {
 			for (const [key, value] of ops) {
 				if (value === undefined)
@@ -25,7 +25,7 @@ export class IdbMagazine implements Magazine {
 	async getMany(keys: string[]) {
 		return this.#tx.readonly((store, wait) => (
 			Promise.all(
-				keys.map(key => wait<string | undefined>(store.get(key)))
+				keys.map(key => wait<Value | undefined>(store.get(key)))
 			)
 		))
 	}
@@ -35,7 +35,7 @@ export class IdbMagazine implements Magazine {
 			return
 
 		yield* await this.#tx.readonly(async (store, wait) => {
-			const entries: [string, string][] = []
+			const entries: [string, Value][] = []
 			const direction = scan.reverse ? "prev" : "next"
 			const request = store.openCursor(idbRange(scan), direction)
 

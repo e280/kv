@@ -1,7 +1,8 @@
 
+import {Value} from "../types.js"
 import {Operator} from "./operator.js"
 
-export class CellOperator<V = unknown> {
+export class CellOperator<V = Value> {
 	#key
 	#parent
 

@@ -74,16 +74,6 @@ await science.run({
 	}),
 
 	"integrity": suite({
-		"malformed data is ignored": test(async() => {
-			const magazine = new MemoryMagazine()
-			const kv = new Kv(magazine)
-			await magazine.commit([[":alpha", "true"], [":bravo", "}"]])
-			expect(await kv.get("alpha")).is(true)
-			expect(await kv.get("bravo")).is(undefined)
-			expect(await kv.has("bravo")).is(false)
-			expect(await kv.count()).is(1)
-		}),
-
 		"scan limit validation": test(async() => {
 			const kv = new Kv()
 			await kv.set("alpha", 123)

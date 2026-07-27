@@ -1,11 +1,12 @@
 
+export type Value = unknown
 export type Pair<V> = [key: string, value: V]
 export type Op<V> = [key: string, value: V | undefined]
 
 export type Magazine = {
-	commit(ops: Op<string>[]): Promise<void>
-	getMany(keys: string[]): Promise<(string | undefined)[]>
-	entries(scan?: Scan): AsyncIterable<Pair<string>>
+	commit(ops: Op<Value>[]): Promise<void>
+	getMany(keys: string[]): Promise<(Value | undefined)[]>
+	entries(scan?: Scan): AsyncIterable<Pair<Value>>
 }
 
 export type Scan = {
@@ -20,12 +21,16 @@ export type Scan = {
 }
 
 export type Codec = {
-	encode(value: unknown): string
-	decode<X = unknown>(text: string): X | undefined
+	encode(value: Value): string
+	decode<X = Value>(text: string): X | undefined
 }
 
 export type Options = {
-	codec: Codec
+
+	/** force values to be json-compatible clones */
+	strict: boolean
+
+	/** namespace for prefixing keys */
 	scopes: string[]
 }
 

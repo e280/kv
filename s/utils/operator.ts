@@ -1,8 +1,8 @@
 
-import {Op} from "../types.js"
+import {Op, Value} from "../types.js"
 import {Prefixer} from "./prefixer.js"
 
-export class Operator<V = unknown> {
+export class Operator<V = Value> {
 	#prefixer: Prefixer
 
 	constructor(prefixer: Prefixer) {

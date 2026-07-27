@@ -3,12 +3,12 @@ import {Scan} from "../types.js"
 import {lexSort} from "./lex-sort.js"
 import {scanMatch} from "./scan-match.js"
 
-export function* scanEntries(scan: Scan, entries: [string, string][]) {
+export function* scanEntries<V>(scan: Scan, entries: [string, V][]) {
 	if (scan.limit === 0)
 		return
 
 	const matches = entries
-		.filter(([key]) => scanMatch(key, scan))
+		.filter(([key, value]) => value !== undefined && scanMatch(key, scan))
 		.sort(([a], [b]) => lexSort(a, b))
 
 	if (scan.reverse)

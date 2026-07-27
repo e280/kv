@@ -1,25 +1,25 @@
 
-import {Op, Magazine, Scan} from "../types.js"
 import {scanEntries} from "../utils/scan-entries.js"
+import {Op, Magazine, Scan, Value} from "../types.js"
 
 export class MemoryMagazine implements Magazine {
-	#map = new Map<string, string>()
+	#map = new Map<string, Value>()
 
-	async commit(ops: Op<string>[]) {
+	async commit(ops: Op<Value>[]) {
 		for (const [key, value] of ops) {
 			if (value === undefined)
 				this.#map.delete(key)
 			else
-				this.#map.set(key, value)
+				this.#map.set(key, structuredClone(value))
 		}
 	}
 
 	async getMany(keys: string[]) {
-		return keys.map(key => this.#map.get(key))
+		return keys.map(key => structuredClone(this.#map.get(key)))
 	}
 
 	async* entries(scan: Scan = {}) {
-		yield* scanEntries(scan, [...this.#map.entries()])
+		yield* scanEntries(scan, [...this.#map.entries()].map(([key, value]) => [key, structuredClone(value)]))
 	}
 }
 

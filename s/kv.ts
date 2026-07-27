@@ -5,13 +5,12 @@ import {consts} from "./consts.js"
 import {Subtree} from "./subtree.js"
 import {Operator} from "./utils/operator.js"
 import {Prefixer} from "./utils/prefixer.js"
-import {JsonCodec} from "./utils/json-codec.js"
 import {MemoryMagazine} from "./magazines/memory.js"
 import {validateScan} from "./utils/validate-scan.js"
 import {validateScopes} from "./utils/validate-scopes.js"
-import {Magazine, Op, Options, Scan, Pair} from "./types.js"
+import {Magazine, Op, Options, Scan, Pair, Value} from "./types.js"
 
-export class Kv<V = unknown> {
+export class Kv<V = Value> {
 
 	/** facility for writing operations that could be committed. */
 	readonly op
@@ -21,6 +20,7 @@ export class Kv<V = unknown> {
 
 	#magazine
 	#prefixer
+	#preprocess
 	#options: Options
 
 	constructor(
@@ -29,7 +29,7 @@ export class Kv<V = unknown> {
 		) {
 		this.#magazine = magazine
 		this.#options = {
-			codec: new JsonCodec(),
+			strict: false,
 			scopes: [],
 			...options,
 		}
@@ -37,6 +37,9 @@ export class Kv<V = unknown> {
 		this.#prefixer = new Prefixer(this.#options)
 		this.op = new Operator<V>(this.#prefixer)
 		this.subtree = new Subtree(this.#magazine, this.#options.scopes)
+		this.#preprocess = this.#options.strict
+			? (value: Value) => JSON.parse(JSON.stringify(value))
+			: (value: Value) => value
 	}
 
 	/** create a cell which can set or get on a single key */
@@ -45,7 +48,7 @@ export class Kv<V = unknown> {
 	}
 
 	/** create a sub kv where all keys inherit a prefix */
-	scope<X = unknown>(...scopes: string[]) {
+	scope<X = Value>(...scopes: string[]) {
 		return new Kv<X>(this.#magazine, {
 			...this.#options,
 			scopes: [...this.#options.scopes, ...scopes],
@@ -57,7 +60,7 @@ export class Kv<V = unknown> {
 			ops.map(([key, value]) => [key, (
 				(value === undefined)
 					? undefined
-					: this.#options.codec.encode(value)
+					: this.#preprocess(value)
 			)])
 		)
 	}
@@ -79,7 +82,7 @@ export class Kv<V = unknown> {
 		return (await this.#magazine.getMany(keys)).map(value =>
 			(value === undefined)
 				? undefined
-				: this.#options.codec.decode(value) as X
+				: value as X
 		)
 	}
 
@@ -110,9 +113,8 @@ export class Kv<V = unknown> {
 
 		for await (const [key, value] of this.#magazine.entries(scan)) {
 			const key2 = this.#prefixer.unprefix(key)
-			const value2 = this.#options.codec.decode<X>(value)
-			if (value2 !== undefined)
-				yield [key2, value2] as Pair<X>
+			if (value !== undefined)
+				yield [key2, value] as Pair<X>
 		}
 	}
 

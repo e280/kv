@@ -30,7 +30,7 @@ import {Kv} from "@e280/kv"
     await kv.get("penguins")
       // 123
     ```
-- **keys are strings. values can be any json data.**
+- **keys are strings. values can be any structured data.**
     ```ts
     await kv.set("hello", {alpha: 123, bravo: ["bingus"]})
     ```
@@ -76,11 +76,11 @@ import {Kv} from "@e280/kv"
     ```
 - **write your own magazine,** you won't believe how easy it is.
     ```ts
-    import {Magazine, Op, Scan} from "@e280/kv"
+    import {Magazine, Op, Scan, Value} from "@e280/kv"
 
     // three methods and you're done!
     export class MyMagazine implements Magazine {
-      async commit(ops: Op<string>[]) {/*...*/}
+      async commit(ops: Op<Value>[]) {/*...*/}
       async getMany(keys: string[]) {/*...*/}
       async* entries(scan?: Scan) {/*...*/}
     }

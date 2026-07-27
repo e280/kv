@@ -17,6 +17,7 @@
   - 🟥 `MemDriver` replaced by `MemoryMagazine`
   - 🟥 `LevelDriver` replaced by `LevelMagazine`
   - 🟥 `StorageDriver` replaced by `StorageMagazine`
+  - 🟥 magazines support structured data directly
   - 🍏 new `IdbMagazine`
 - 🟥 removed dependency `level`, now we just use our own in-house `LevelLike` type which should be leveldb compatible
 - 🟥 `kv.transaction` replaced by `kv.commit`

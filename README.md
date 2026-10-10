@@ -80,9 +80,9 @@ import {Kv} from "@e280/kv"
 
     // three methods and you're done!
     export class MyMagazine implements Magazine {
-      async commit(ops: Op<Value>[]) {/*...*/}
-      async getMany(keys: string[]) {/*...*/}
-      async* entries(scan?: Scan) {/*...*/}
+      async commit(ops: Op<Value>[]): Promise<void> {/*...*/}
+      async getMany(keys: string[]): Promise<(unknown | undefined)[]> {/*...*/}
+      async* entries(scan?: Scan): AsyncIterable<[key: string, value: unknown]> {/*...*/}
     }
     ```
     see [magazines/memory.ts](./s/magazines/memory.ts) for inspiration.

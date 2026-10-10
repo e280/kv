@@ -1,7 +1,7 @@
 
-import {deep} from "@e280/stz"
+import {deepFreeze} from "@e280/stz"
 
-export const consts = deep.freeze({
+export const consts = deepFreeze({
 	divisor: ".",
 	delimiter: ":",
 	chunkSize: 1024,

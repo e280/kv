@@ -139,7 +139,7 @@ import {Kv} from "@e280/kv"
     ```
     ```ts
     await animals.subtree.clear()
-      // 💀 wipes out the turtles and squirrels. i'm sorry.
+      // 💀 wipes out all animals, turtles, and squirrels. i'm sorry.
     ```
 - **don't forget you can set strict types,** on both Kv and scopes.
     ```ts

@@ -8,6 +8,7 @@ export * from "./utils/idb/open.js"
 export * from "./utils/idb/types.js"
 
 export * from "./kv.js"
+export * from "./migrate.js"
 export * from "./cell.js"
 export * from "./types.js"
 

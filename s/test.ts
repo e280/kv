@@ -3,7 +3,7 @@ import {collect} from "@e280/stz"
 import {science, suite, test, expect} from "@e280/science"
 
 import {Kv} from "./kv.js"
-import {MemoryMagazine} from "./magazines/memory.js"
+import { migrate } from "./migrate.js"
 
 await science.run({
 	"access": suite({
@@ -307,6 +307,62 @@ await science.run({
 			expect(await cell.has()).is(false)
 			await expect(async() => await cell.need()).throwsAsync()
 			expect(await kv.count()).is(0)
+		}),
+	}),
+
+	"migrate": suite({
+		"simple migration": test(async() => {
+			const kv = new Kv()
+			const apples = kv.cell<number>("apples")
+			await apples.set(1)
+			await migrate(kv, kv.cell("version"), [
+				[0, async op => op(apples.op.set(100))],
+				[1, async op => op(apples.op.set(101))],
+				[2, async op => op(apples.op.set((await apples.need()) + 1))],
+			])
+			expect(await apples.need()).is(102)
+			expect(await kv.cell<number>("version").need()).is(3)
+		}),
+
+		"reject malforms": test(async() => {
+			const kv = new Kv()
+			const apples = kv.cell<number>("apples")
+
+			// missed version
+			await expect(async() => migrate(kv, kv.cell("version"), [
+				[0, async op => op(apples.op.set(100))],
+				[2, async op => op(apples.op.set(101))],
+			])).throwsAsync()
+
+			// duplicates
+			await expect(async() => migrate(kv, kv.cell("version"), [
+				[0, async op => op(apples.op.set(100))],
+				[0, async op => op(apples.op.set(101))],
+			])).throwsAsync()
+		}),
+
+		"resume after failure": test(async() => {
+			const kv = new Kv()
+			const apples = kv.cell<number>("apples")
+			const version = kv.cell<number>("version")
+			let fail = true
+
+			const run = () => migrate(kv, version, [
+				[0, async op => op(apples.op.set(100))],
+				[1, async op => {
+					if (fail) throw new Error("oops")
+					op(apples.op.set(101))
+				}],
+			])
+
+			await expect(run).throwsAsync()
+			expect(await apples.need()).is(100)
+			expect(await version.need()).is(1)
+
+			fail = false
+			await run()
+			expect(await apples.need()).is(101)
+			expect(await version.need()).is(2)
 		}),
 	}),
 })

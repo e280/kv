@@ -10,6 +10,18 @@
 
 ## v0.2
 
+### v0.2.4
+- 🍏 add `migrate` fn.
+
+### v0.2.3
+- 🍏 update deps and readme.
+
+### v0.2.2
+- 🍏 update deps and readme.
+
+### v0.2.1
+- 🍏 update deps.
+
 ### v0.2.0
 - 🟥 total rewrite!
 - 🟥 `Driver` replaced by `Magazine`

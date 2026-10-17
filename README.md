@@ -261,6 +261,33 @@ import {Kv} from "@e280/kv"
 
 
 
+## 🪇 migrations
+- **write migration fns for each version of your app.**
+    ```ts
+    import {migrate} from "@e280/kv"
+
+    await navigator.locks.request("migrate", async() =>
+      migrate(kv, kv.cell("version"), [
+        [0, async op => {
+          // rename secret to seed.
+          const identities = kv.scope<any>("identities")
+          for await (const [key, {secret, alias}] of identities)
+            op(identities.op.set(key, {seed: secret, alias}))
+        }],
+
+        [1, async op => {
+          // remove alias.
+          const identities = kv.scope<any>("identities")
+          for await (const [key, {seed}] of identities)
+            op(identities.op.set(key, {seed}))
+        }],
+      ])
+    )
+    ```
+    - the `op` fn schedules an op, and at the end of each version fn, the scheduled ops are committed.
+
+
+
 <br/><br/>
 
 *https://e280.org/*

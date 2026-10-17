@@ -1,7 +1,7 @@
 
-import {consts} from "./consts.js"
-import {Magazine, Op, Scan} from "./types.js"
-import {prefixEnd} from "./utils/prefix-end.js"
+import {consts} from "../consts.js"
+import {Magazine, Op, Scan} from "../types.js"
+import {prefixEnd} from "./prefix-end.js"
 
 export class Subtree {
 	#magazine

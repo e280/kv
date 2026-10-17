@@ -11,18 +11,23 @@ export async function migrate(
 	) {
 
 	const map = new Map(migrators)
-	const latestVersion = migrators.reduce((p, migrator) => Math.max(p, migrator[0]), 0)
+	const latestVersion = migrators.reduce((p, [v]) => Math.max(p, v + 1), 0)
 	const version = (await versionCell.get()) ?? 0
 
 	if (map.size !== migrators.length)
-		throw new Error("malformed migrators, duplicates detected")
+		throw new Error("duplicate migrators detected")
 
-	if (version > latestVersion)
-		throw new Error("unknown version")
+	if (!Number.isSafeInteger(version) || version < 0 || version > latestVersion)
+		throw new Error(`bad version ${version}`)
 
 	if (version === latestVersion)
 		return
 
+	// check that all migrators are present.
+	for (let v = 0; v < latestVersion; v++)
+		need(map, v, `missing migrator ${v}`)
+
+	// run the migrators.
 	for (let v = version; v < latestVersion; v++) {
 		const ops: Op[] = []
 		const migrator = need(map, v)

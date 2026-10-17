@@ -1,7 +1,7 @@
 
 export type Value = unknown
-export type Pair<V> = [key: string, value: V]
-export type Op<V> = [key: string, value: V | undefined]
+export type Pair<V = Value> = [key: string, value: V]
+export type Op<V = Value> = [key: string, value: V | undefined]
 
 export type Magazine = {
 	commit(ops: Op<Value>[]): Promise<void>

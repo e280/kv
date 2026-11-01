@@ -10,6 +10,9 @@
 
 ## v0.2
 
+### v0.2.5
+- 🔶 deprecate `migrate` fn, because its design is flawed, see [issue 1](https://github.com/e280/kv/issues/1).
+
 ### v0.2.4
 - 🍏 add `migrate` fn.
 

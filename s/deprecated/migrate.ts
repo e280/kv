@@ -1,9 +1,10 @@
 
 import {need} from "@e280/stz"
-import {Kv} from "./kv.js"
-import {Op} from "./types.js"
-import {Cell} from "./cell.js"
+import {Kv} from "../kv.js"
+import {Op} from "../types.js"
+import {Cell} from "../cell.js"
 
+/** @deprecated the design of this fn is flawed, will be replaced -- see issue 1, https://github.com/e280/kv/issues/1 */
 export async function migrate(
 		kv: Kv,
 		versionCell: Cell<number>,

@@ -1,6 +1,6 @@
 
 import {isHappy} from "@e280/stz"
-import {Scan} from "../../types.js"
+import {Scan} from "../types.js"
 
 export function idbRange({start, end}: Scan) {
 	if (isHappy(start) && isHappy(end)) return IDBKeyRange.bound(start, end, false, true)

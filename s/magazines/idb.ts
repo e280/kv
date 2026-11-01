@@ -1,8 +1,8 @@
 
-import {Idb} from "../utils/idb/types.js"
-import {idbRange} from "../utils/idb/range.js"
+import {Idb} from "../idb/types.js"
+import {idbRange} from "../idb/range.js"
 import {Op, Magazine, Scan, Value} from "../types.js"
-import {idbTransactions} from "../utils/idb/transactions.js"
+import {idbTransactions} from "../idb/transactions.js"
 
 export class IdbMagazine implements Magazine {
 	#tx

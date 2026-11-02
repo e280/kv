@@ -9,6 +9,6 @@ export async function idbOpen(dbName: string, storeName = dbName): Promise<Idb> 
 		request.onupgradeneeded = () => request.result.createObjectStore(storeName)
 		request.onsuccess = () => resolve(request.result)
 	})
-	return {db, storeName}
+	return {db, dbName, storeName}
 }
 

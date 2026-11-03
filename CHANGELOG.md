@@ -10,6 +10,17 @@
 
 ## v0.2
 
+### v0.2.6
+- 🍏 opfs fns.
+  - 🍏 add fn `opfsDestroy`.
+  - 🍏 add fn `opfsDirectory`.
+- 🍏 idb fns.
+  - 🍏 add fn `idbDestroy`.
+  - 🍏 export fn `idbRange`.
+  - 🍏 export fn `idbTransactions`.
+  - 🍏 export fn `idbWait`.
+- 🍏 add dbName to `Idb` type.
+
 ### v0.2.5
 - 🔶 deprecate `migrate` fn, because its design is flawed, see [issue 1](https://github.com/e280/kv/issues/1).
 

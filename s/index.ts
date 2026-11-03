@@ -16,7 +16,7 @@ export * from "./magazines/storage.js"
 export * from "./opfs/destroy.js"
 export * from "./opfs/directory.js"
 
-export * from "./kv.js"
 export * from "./cell.js"
+export * from "./kv.js"
 export * from "./types.js"
 
